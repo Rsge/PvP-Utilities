@@ -1,0 +1,15 @@
+[
+{
+  "modid": "pvputils",
+  "name": "PvP Utilities",
+  "description": "Lots of Utilities for Minecraft PvP, including limiting playtime, limited lifes, XP-limiting and commandlogging. 
+Credits:
+The Forge and FML guys for making Forge, 'codechicken', the COFH-Team & the HQM-Makers for code-inspiration, Jayjay265 for an initial script-idea and all the people playing on my server.",
+  "version": "Beta",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "authorList": ["Rsge"],
+  "credits": "See below",
+  "requiredMods": ["Forge"]
+}
+]

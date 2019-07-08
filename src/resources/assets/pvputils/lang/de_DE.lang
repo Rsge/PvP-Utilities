@@ -1,0 +1,13 @@
+# ======================================
+#				GENERELLES
+# ======================================
+pvputils.message.version.1=Es ist Version 
+pvputils.message.version.2= von PvP Utilities installiert.
+
+# ======================================
+#				 BEFEHLE
+# ======================================
+pvputils.command.notFound=Befehl nicht gefunden!
+pvputils.command.noPermission=Du hast nicht die Erlaubnis, diesen Befehl zu verwenden!
+pvputils.command.positiveNumbers=Bitte verwende nur positive Zahlen.
+pvputils.command.realPlayer=Bitte verwende nur richtige Spielernamen von Spielern, die momentan online sind.
