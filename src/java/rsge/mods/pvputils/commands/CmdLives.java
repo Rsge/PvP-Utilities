@@ -1,5 +1,6 @@
 package rsge.mods.pvputils.commands;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -8,10 +9,13 @@ import org.apache.commons.lang3.StringUtils;
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.SyntaxErrorException;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.IChatComponent;
 import rsge.mods.pvputils.config.Config;
 import rsge.mods.pvputils.data.Lives;
 import rsge.mods.pvputils.main.Logger;
@@ -59,314 +63,591 @@ public class CmdLives extends CmdBase
 	@Override
 	public void handleCommand(ICommandSender cmdsender, String[] args)
 	{
-		int a;
+		String s;
+		String max = "You reached the max amount of lives.";
+		EntityPlayerMP p;
+
 		// With no extra argument
 		// /pvputils lives
 		if (args.length == 0 && cmdsender instanceof EntityPlayer)
 		{
-			EntityPlayerMP p = (EntityPlayerMP) cmdsender;
+			p = (EntityPlayerMP) cmdsender;
 			Lives.chatLives(p);
 		}
 
 		// With 1 argument
-		// /pvputils lives <reset/add/remove/uuid/playername>
+		// /pvputils lives <enable/disable/reset/add/remove/playername/uuid>
 		else if (args.length == 1 && cmdsender instanceof EntityPlayer)
 		{
-			if (args[0].equalsIgnoreCase("enable"))
+			p = (EntityPlayerMP) cmdsender;
+			
+			switch (args[0].toLowerCase())
 			{
+			// /pvputils lives enable
+			case "enable":
 				if (!isCmdsAllowed(cmdsender))
 					throw new CommandException("pvputils.command.noPermission");
 
-				else
-				{
-					Config.livesEnabled = true;
-
-					// Log command
-					String s = "Enabled lives.";
-					sendChat(cmdsender, s);
-					Logger.logCmd(cmdsender, s);
-				}
-			}
-
-			else if (args[0].equalsIgnoreCase("disable"))
-			{
-				if (!isCmdsAllowed(cmdsender))
-					throw new CommandException("pvputils.command.noPermission");
-
-				else
-				{
-					Config.livesEnabled = false;
-
-					// Log command
-					String s = "Disabled lives";
-					sendChat(cmdsender, s);
-					Logger.logCmd(cmdsender, s);
-				}
-			}
-
-			if (args[0].equalsIgnoreCase("reset"))
-			{
-				if (!isCmdsAllowed(cmdsender))
-					throw new CommandException("pvputils.command.noPermission");
-
-				EntityPlayerMP p = (EntityPlayerMP) cmdsender;
-				Lives.resetLives(p);
-
-				// Log command
-				String s = "Reset his/her lives.";
-				if (!Lives.tooManyAdded)
-					sendChat(cmdsender, "Reset your lives.");
-				else
-				{
-					sendChat(cmdsender, "You reached the max number of lives.");
-					Lives.tooManyAdded = false;
-				}
-				Logger.logCmd(cmdsender, s);
-			}
-			else if (args[0].equalsIgnoreCase("add"))
-			{
-				if (!isCmdsAllowed(cmdsender))
-					throw new CommandException("pvputils.command.noPermission");
-
-				EntityPlayerMP p = (EntityPlayerMP) cmdsender;
-				Lives.addLife(p);
-
-				// Log command
-				String s = "Added 1 life to him-/herself.";
-				if (!Lives.tooManyAdded)
-					sendChat(cmdsender, "Added 1 life to yourself.");
-				else
-				{
-					sendChat(cmdsender, "You reached the max number of lives.");
-					Lives.tooManyAdded = false;
-				}
-				Logger.logCmd(cmdsender, s);
-			}
-			else if (args[0].equalsIgnoreCase("remove"))
-			{
-				if (!isCmdsAllowed(cmdsender))
-					throw new CommandException("pvputils.command.noPermission");
-
-				EntityPlayerMP p = (EntityPlayerMP) cmdsender;
-				Lives.removeLife(p);
-
-				// Log command
-				String s = "Removed 1 life from him-/herself.";
-				sendChat(cmdsender, "Removed 1 life from yourself.");
-				Logger.logCmd(cmdsender, s);
-			}
-			else
-			{
 				try
 				{
+					Lives.init();
+					Config.livesEnabled = true;
+				}
+				catch (IOException e)
+				{
+					throw new CommandException("pvputils.command.ioException");
+				}
+
+				s = "Enabled lives.";
+				sendChat(cmdsender, s);
+				Logger.logCmd(cmdsender, s);
+				break;
+
+			// /pvputils lives disable
+			case "disable":
+				if (!isCmdsAllowed(cmdsender))
+					throw new CommandException("pvputils.command.noPermission");
+
+				if (!Lives.stop())
+					throw new CommandException("pvputils.command.ioException");
+
+				Config.livesEnabled = false;
+
+				s = "Disabled lives";
+				sendChat(cmdsender, s);
+				Logger.logCmd(cmdsender, s);
+				break;
+
+			// /pvputils lives reset
+			case "reset":
+				if (!isCmdsAllowed(cmdsender))
+					throw new CommandException("pvputils.command.noPermission");
+
+				Lives.resetLives(p);
+
+				sendChat(cmdsender, "Reset your lives.");
+				Logger.logCmd(cmdsender, "Reset his/her lives.");
+				break;
+
+			// /pvputils lives add
+			case "add":
+				if (!isCmdsAllowed(cmdsender))
+					throw new CommandException("pvputils.command.noPermission");
+
+				Lives.addLives(p, 1);
+
+				if (!Lives.tooManyAdded)
+				{
+					s = "Added 1 life to ";
+					sendChat(cmdsender, s + "yourself.");
+					Logger.logCmd(cmdsender, s + "him-/herself.");
+				}
+				else
+				{
+					sendChat(cmdsender, max);
+					Logger.logCmd(cmdsender, "Tried adding life, reached max amount.");
+					Lives.tooManyAdded = false;
+				}
+				break;
+
+			// "pvputils lives remove
+			case "remove":
+				if (!isCmdsAllowed(cmdsender))
+					throw new CommandException("pvputils.command.noPermission");
+
+				Lives.removeLives(p, 1);
+
+				s = "Removed 1 life from ";
+				if (!Lives.playerBanned)
+					sendChat(cmdsender, s + "yourself.");
+				else
+					Lives.playerBanned = false;
+				Logger.logCmd(cmdsender, s + "him-/herself.");
+				break;
+
+			// /pvputils lives [playername/uuid]
+			default:
+				// /pvputils lives [uuid]
+				try
+				{
+					UUID u = UUID.fromString(args[0]);
+					byte l = Lives.getLives(u);
+
 					String end;
-					UUID uuid = UUID.fromString(args[0]);
-					byte lives = Lives.getLives(uuid);
-					if (lives == 1)
-						end = "life left.";
+					if (l == 1)
+						end = " life left.";
 					else
-						end = "lives left.";
-					cmdsender.addChatMessage(new ChatComponentText("This guy has " + lives + end));
+						end = " lives left.";
+
+					IChatComponent msgStart = new ChatComponentText("This guy has ");
+					IChatComponent msgLives = Lives.formatLives(l);
+					IChatComponent msgEnd = new ChatComponentText(end);
+
+					IChatComponent msgFinal = msgStart.appendSibling(msgLives).appendSibling(msgEnd);
+					msgFinal.setChatStyle(new ChatStyle().setBold(true));
+					cmdsender.addChatMessage(msgFinal);
 				}
 				catch (IllegalArgumentException ex)
 				{
-					String name = args[0];
+					// /pvputils lives [playername]
 					try
 					{
-						EntityPlayer p = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(name);
+						String name = args[0];
+						p = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(name);
 						EntityPlayer receiver = (EntityPlayer) cmdsender;
-						Lives.chatLivesTo(p, receiver, false);
+						Lives.chatLivesTo(p, receiver);
 					}
-					catch (Exception exc)
+					catch (NullPointerException e)
 					{
-						throw new WrongUsageException("pvputils.command.realPlayer");
+						throw new SyntaxErrorException("pvputils.command.realPlayer");
 					}
 				}
+				break;
 			}
 		}
 
 		// With 2 arguments
-		// /pvputils lives [reset/set/add/remove] [playername/amont]
+		// /pvputils lives [reset/set/add/remove] [playername/uuid/all/amount]
 		else if (args.length == 2 && cmdsender instanceof EntityPlayer)
 		{
+			p = (EntityPlayerMP) cmdsender;
+			
 			if (!isCmdsAllowed(cmdsender))
 				throw new CommandException("pvputils.command.noPermission");
-			try
+
+			// /pvputils lives [set/add/remove] [amount]
+			if (StringUtils.isNumeric(args[1]))
 			{
-				// /pvputils lives [set/add/remove] [amont]
-				if (StringUtils.isNumeric(args[1]))
+				int a = Integer.parseInt(args[1]);
+
+				if (a < 0)
+					throw new WrongUsageException("pvputils.command.positiveNumbers");
+
+				switch (args[0].toLowerCase())
 				{
-					a = Integer.parseInt(args[1]);
+				// /pvputils lives set [amount]
+				case "set":
+					Lives.setLives(p, a);
 
-					if (a < 0)
-						throw new WrongUsageException("pvputils.command.positiveNumbers");
-
-					if (args[0].equalsIgnoreCase("set"))
+					if (!Lives.tooManyAdded)
 					{
-						EntityPlayerMP p = (EntityPlayerMP) cmdsender;
-						Lives.setLives(p, a);
-
-						// Log command
-						String s = "Set his/her lives to " + a + ".";
-						if (!Lives.tooManyAdded)
-							sendChat(cmdsender, "Set your lives to " + a + ".");
-						else
-						{
-							sendChat(cmdsender, "You reached the max number of lives.");
-							Lives.tooManyAdded = false;
-						}
-						Logger.logCmd(cmdsender, s);
+						sendChat(cmdsender, "Set your lives to " + a + ".");
+						Logger.logCmd(cmdsender, "Set his/her lives to " + a + ".");
 					}
-					else if (args[0].equalsIgnoreCase("add"))
+					else
 					{
-						EntityPlayerMP p = (EntityPlayerMP) cmdsender;
-						Lives.addLives(p, a);
-
-						// Log command
-						String s = "Added " + a + " life(s) to him-/herself.";
-						if (!Lives.tooManyAdded)
-							sendChat(cmdsender, "Added " + a + " life(s) to yourself.");
-						else
-						{
-							sendChat(cmdsender, "You reached the max number of lives.");
-							Lives.tooManyAdded = false;
-						}
-						Logger.logCmd(cmdsender, s);
+						sendChat(cmdsender, max);
+						Logger.logCmd(cmdsender, "Set his/her lives to max.");
+						Lives.tooManyAdded = false;
 					}
-					else if (args[0].equalsIgnoreCase("remove"))
+					break;
+
+				// /pvputils lives add [amount]
+				case "add":
+					Lives.addLives(p, a);
+
+					if (!Lives.tooManyAdded)
 					{
-						EntityPlayerMP p = (EntityPlayerMP) cmdsender;
-						Lives.removeLives(p, a);
-
-						// Log command
-						String s = "Removed " + a + " life(s) from him-/herself.";
-						sendChat(cmdsender, "Removed " + a + " life(s) from yourself.");
-						Logger.logCmd(cmdsender, s);
+						s = "Added " + a + " lives to ";
+						sendChat(cmdsender, s + "yourself.");
+						Logger.logCmd(cmdsender, s + "him-/herself.");
 					}
-				}
-				// /pvputils lives [reset/add/remove] [playername]
-				else
-				{
-					String name = args[1];
-
-					if (args[0].equalsIgnoreCase("reset"))
+					else
 					{
-						EntityPlayerMP p = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(name);
-						Lives.resetLives(p);
-
-						// Log command
-						String s = "Reset " + name + "'s lives.";
-						sendChat(cmdsender, s);
-						Logger.logCmd(cmdsender, s);
+						sendChat(cmdsender, max);
+						Logger.logCmd(cmdsender, "Tried adding " + a + " lives to him-/herself, reached max.");
+						Lives.tooManyAdded = false;
 					}
-					else if (args[0].equalsIgnoreCase("add"))
+					break;
+
+				// /pvputils lives remove [amount]
+				case "remove":
+					Lives.removeLives(p, a);
+
+					if (!Lives.playerBanned)
 					{
-						EntityPlayerMP p = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(name);
-						Lives.addLife(p);
-
-						// Log command
-						String s = "Added 1 life to " + name + ".";
-						if (!Lives.tooManyAdded)
-							sendChat(cmdsender, s);
-						else
-						{
-							sendChat(cmdsender, name + " has reached the max number of lives.");
-							Lives.tooManyAdded = false;
-						}
-						Logger.logCmd(cmdsender, s);
+						s = "Removed " + a + " lives from ";
+						sendChat(cmdsender, s + "yourself.");
+						Logger.logCmd(cmdsender, s + "him-/herself.");
 					}
-					else if (args[0].equalsIgnoreCase("remove"))
+					else
 					{
-						EntityPlayerMP p = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(name);
-						Lives.removeLife(p);
-
-						// Log command
-						String s = "Removed 1 life from " + name + ".";
-						if (!Lives.playerBanned)
-							sendChat(cmdsender, s);
-						else
-						{
-							sendChat(cmdsender, "Removed remaining lives from " + name + ". Player banned!");
-							Lives.playerBanned = false;
-						}
-						Logger.logCmd(cmdsender, s);
+						Logger.logCmd(cmdsender, "Removed all his/her remaining lives.");
+						Lives.playerBanned = false;
 					}
+					break;
 				}
 			}
-			catch (Exception ex)
+			// /pvputils lives [reset/add/remove] all
+			else if (args[1].equalsIgnoreCase("all"))
 			{
-				throw new WrongUsageException("pvputils.command.realPlayer");
+				switch (args[0].toLowerCase())
+				{
+				// /pvputils lives reset all
+				case "reset":
+					Lives.resetAllLives();
+
+					s = "Reset all lives.";
+					sendChat(cmdsender, s);
+					Logger.logCmd(cmdsender, s);
+					break;
+
+				// /pvputils lives add all
+				case "add":
+					Lives.addLivesToAll(1);
+
+					s = "Added 1 life to everyone.";
+					sendChat(cmdsender, s);
+					Logger.logCmd(cmdsender, s);
+					if (Lives.tooManyAdded)
+					{
+						sendChat(cmdsender, "In the process someone reached the max amount of lives.");
+						Lives.tooManyAdded = false;
+					}
+					break;
+
+				// /pvputils lives remove all
+				case "remove":
+					Lives.removeLivesFromAll(1);
+
+					s = "Removed 1 life from everyone.";
+					sendChat(cmdsender, s);
+					Logger.logCmd(cmdsender, s);
+					if (Lives.playerBanned)
+					{
+						sendChat(cmdsender, "In the process someone ran out of lives and was banned.");
+						Lives.playerBanned = false;
+					}
+					break;
+				}
+			}
+			// /pvputils lives [reset/add/remove] [playername/uuid]
+			else
+			{
+				// /pvputils lives [reset/add/remove] [uuid]
+				try
+				{
+					UUID u = UUID.fromString(args[1]);
+
+					switch (args[0].toLowerCase())
+					{
+					// /pvputils lives reset [uuid]
+					case "reset":
+						Lives.resetLives(u);
+
+						sendChat(cmdsender, "Reset this guy's lives.");
+						Logger.logCmd(cmdsender, "Reset lives of " + u.toString() + ".");
+						break;
+
+					// /pvputils lives add [uuid]
+					case "add":
+						Lives.addLives(u, 1);
+
+						if (!Lives.tooManyAdded)
+						{
+							s = "Added 1 life to ";
+							sendChat(cmdsender, s + "this guy.");
+							Logger.logCmd(cmdsender, s + u.toString() + ".");
+						}
+						else
+						{
+							sendChat(cmdsender, "This guy reached the max amount of lives.");
+							Logger.logCmd(cmdsender, "Tried adding 1 life to " + u.toString() + ", reached max.");
+							Lives.tooManyAdded = false;
+						}
+						break;
+
+					// /pvputils lives remove [uuid]
+					case "remove":
+						Lives.removeLives(u, 1);
+
+						if (!Lives.playerBanned)
+						{
+							s = "Removed 1 life from ";
+							sendChat(cmdsender, s + "this guy.");
+							Logger.logCmd(cmdsender, s + u.toString() + ".");
+						}
+						else
+						{
+							s = "Removed remaining life from ";
+							sendChat(cmdsender, s + "this guy. Player banned!");
+							Logger.logCmd(cmdsender, s + u.toString() + ". Player banned.");
+							Lives.playerBanned = false;
+						}
+						break;
+					}
+				}
+				catch (IllegalArgumentException ex)
+				{
+					// /pvputils lives [reset/add/remove] [playername]
+					try
+					{
+						String name = args[1];
+						p = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(name);
+
+						switch (args[0].toLowerCase())
+						{
+						// /pvputils lives reset [playername]
+						case "reset":
+							Lives.resetLives(p);
+
+							s = "Reset " + name + "'s lives.";
+							sendChat(cmdsender, s);
+							Logger.logCmd(cmdsender, s);
+							break;
+
+						// /pvputils lives add [playername]
+						case "add":
+							Lives.addLives(p, 1);
+
+							if (!Lives.tooManyAdded)
+							{
+								s = "Added 1 life to " + name + ".";
+								sendChat(cmdsender, s);
+								Logger.logCmd(cmdsender, s);
+							}
+							else
+							{
+								sendChat(cmdsender, name + " reached the max amount of lives.");
+								Logger.logCmd(cmdsender, "Tried adding 1 life to " + name + ", reached max.");
+								Lives.tooManyAdded = false;
+							}
+							break;
+
+						// /pvputils lives remove [playername]
+						case "remove":
+							Lives.removeLives(p, 1);
+
+							if (!Lives.playerBanned)
+							{
+								s = "Removed 1 life from " + name + ".";
+								sendChat(cmdsender, s);
+								Logger.logCmd(cmdsender, s);
+							}
+							else
+							{
+								s = "Removed remaining life from " + name + ". Player banned!";
+								sendChat(cmdsender, s);
+								Logger.logCmd(cmdsender, s);
+								Lives.playerBanned = false;
+							}
+							break;
+						}
+					}
+					catch (NullPointerException e)
+					{
+						throw new SyntaxErrorException("pvputils.command.realPlayer");
+					}
+				}
 			}
 		}
 
-		// With all arguments
-		// /pvputils lives [set/add/remove] [playername] [amont]
+		// With all 3 arguments
+		// /pvputils lives [set/add/remove] [playername/uuid/all] [amount]
 		else if (args.length == 3 && cmdsender instanceof EntityPlayer)
 		{
 			if (!isCmdsAllowed(cmdsender))
 				throw new CommandException("pvputils.command.noPermission");
 
+			int a = 0;
 			try
 			{
-				String name = args[1];
 				a = Integer.parseInt(args[2]);
+			}
+			catch (NumberFormatException ex)
+			{
+				throw new SyntaxErrorException("pvputils.command.notFound");
+			}
+			if (a < 0)
+				throw new WrongUsageException("pvputils.command.positiveNumbers");
 
-				if (a < 0)
-					throw new WrongUsageException("pvputils.command.positiveNumbers");
-
-				if (args[0].equalsIgnoreCase("set"))
+			// /pvputils lives [set/add/remove] all [amount]
+			if (args[1].equalsIgnoreCase("all"))
+			{
+				switch (args[0].toLowerCase())
 				{
-					EntityPlayerMP p = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(name);
-					Lives.setLives(p, a);
+				// /pvputils lives set all [amount]
+				case "set":
+					Lives.setAllLives(a);
 
-					// Log command
-					String s = "Set " + name + "'s lives to " + a + ".";
 					if (!Lives.tooManyAdded)
+					{
+						s = "Set everyone's lives to " + a + ".";
 						sendChat(cmdsender, s);
+						Logger.logCmd(cmdsender, s);
+					}
 					else
 					{
-						sendChat(cmdsender, name + " has reached the max number of lives.");
+						sendChat(cmdsender, "Everyone now has the max amount of lives.");
+						Logger.logCmd(cmdsender, "Set everyone's lives to max.");
 						Lives.tooManyAdded = false;
 					}
-					Logger.logCmd(cmdsender, s);
-				}
-				else if (args[0].equalsIgnoreCase("add"))
-				{
-					EntityPlayerMP p = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(name);
-					Lives.addLives(p, a);
+					break;
 
-					// Log command
-					String s = "Added " + a + " life(s) to " + name + ".";
-					if (!Lives.tooManyAdded)
-						sendChat(cmdsender, s);
-					else
+				// /pvputils lives add all [amount]
+				case "add":
+					Lives.addLivesToAll(a);
+
+					s = "Added " + a + " lives to everyone.";
+					sendChat(cmdsender, s);
+					Logger.logCmd(cmdsender, s);
+					if (Lives.tooManyAdded)
 					{
-						sendChat(cmdsender, name + " has reached the max number of lives.");
+						sendChat(cmdsender, "In the process someone reached the max amount of lives.");
 						Lives.tooManyAdded = false;
 					}
-					Logger.logCmd(cmdsender, s);
-				}
-				else if (args[0].equalsIgnoreCase("remove"))
-				{
-					EntityPlayerMP p = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(name);
-					Lives.removeLives(p, a);
+					break;
 
-					// Log command
-					String s = "Removed " + a + " life(s) from " + name + ".";
-					if (!Lives.playerBanned)
-						sendChat(cmdsender, s);
-					else
+				// /pvputils lives remove all [amount]
+				case "remove":
+					Lives.removeLivesFromAll(a);
+
+					s = "Removed " + a + " lives from everyone.";
+					sendChat(cmdsender, s);
+					Logger.logCmd(cmdsender, s);
+					if (Lives.playerBanned)
 					{
-						sendChat(cmdsender, "Removed remaining lives from " + name + ". Player banned!");
+						sendChat(cmdsender, "In the process someone lost his/her last live . Player(s) banned!");
 						Lives.playerBanned = false;
 					}
-					Logger.logCmd(cmdsender, s);
+					break;
 				}
-
 			}
-			catch (Exception ex)
+			// /pvputils lives [set/add/remove] [playername/uuid] [amount]
+			else
 			{
-				throw new WrongUsageException("pvputils.command.realPlayer");
+				// /pvputils lives [set/add/remove] [uuid] [amount]
+				try
+				{
+					UUID u = UUID.fromString(args[1]);
+
+					switch (args[0].toLowerCase())
+					{
+					// /pvputils lives set [uuid] [amount]
+					case "set":
+						Lives.setLives(u, a);
+
+						if (!Lives.tooManyAdded)
+						{
+							sendChat(cmdsender, "Set this guy's lives to " + a + ".");
+							Logger.logCmd(cmdsender, "Set lives of " + u.toString() + " to " + a + ".");
+						}
+						else
+						{
+							sendChat(cmdsender, "This guy reached the max amount of lives.");
+							Logger.logCmd(cmdsender, "Set lives of " + u.toString() + " to max.");
+							Lives.tooManyAdded = false;
+						}
+						break;
+
+					// /pvputils lives add [uuid] [amount]
+					case "add":
+						Lives.addLives(u, a);
+
+						if (!Lives.tooManyAdded)
+						{
+							s = "Added " + a + " lives to ";
+							sendChat(cmdsender, s + "this guy.");
+							Logger.logCmd(cmdsender, s + u.toString() + ".");
+						}
+						else
+						{
+							sendChat(cmdsender, "This guy reached the max amount of lives.");
+							Logger.logCmd(cmdsender, "Tried adding " + a + " lives to " + u.toString() + ", reached max.");
+							Lives.tooManyAdded = false;
+						}
+						break;
+
+					// /pvputils lives remove [playername] [amount]
+					case "remove":
+						Lives.removeLives(u, a);
+
+						if (!Lives.playerBanned)
+						{
+							s = "Removed " + a + " lives from";
+							sendChat(cmdsender, s + "this guy.");
+							Logger.logCmd(cmdsender, s + u.toString() + ".");
+						}
+						else
+						{
+							s = "Removed remaining lives from ";
+							sendChat(cmdsender, s + "this guy. Player banned!");
+							Logger.logCmd(cmdsender, s + u.toString() + ". Player banned!");
+							Lives.playerBanned = false;
+						}
+						break;
+					}
+				}
+				catch (IllegalArgumentException ex)
+				{
+					try
+					{
+						String name = args[1];
+						p = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(name);
+
+						switch (args[0].toLowerCase())
+						{
+						// /pvputils lives set [playername] [amount]
+						case "set":
+							Lives.setLives(p, a);
+
+							if (!Lives.tooManyAdded)
+							{
+								s = "Set " + name + "'s lives to " + a + ".";
+								sendChat(cmdsender, s);
+								Logger.logCmd(cmdsender, s);
+							}
+							else
+							{
+								sendChat(cmdsender, name + " reached the max amount of lives.");
+								Logger.logCmd(cmdsender, "Set " + name + "'s lives to max.");
+								Lives.tooManyAdded = false;
+							}
+							break;
+
+						// /pvputils lives add [playername] [amount]
+						case "add":
+							Lives.addLives(p, a);
+
+							if (!Lives.tooManyAdded)
+							{
+								s = "Added " + a + " lives to " + name + ".";
+								sendChat(cmdsender, s);
+								Logger.logCmd(cmdsender, s);
+							}
+							else
+							{
+								sendChat(cmdsender, name + " reached the max amount of lives.");
+								Logger.logCmd(cmdsender, "Tried adding " + a + " lives to " + name + ", reached max.");
+								Lives.tooManyAdded = false;
+							}
+							break;
+
+						// /pvputils lives remove [playername] [amount]
+						case "remove":
+							Lives.removeLives(p, a);
+
+							if (!Lives.playerBanned)
+							{
+								s = "Removed " + a + " lives from " + name + ".";
+								sendChat(cmdsender, s);
+								Logger.logCmd(cmdsender, s);
+							}
+							else
+							{
+								s = "Removed remaining lives from " + name + ". Player banned!";
+								sendChat(cmdsender, s);
+								Logger.logCmd(cmdsender, s);
+								Lives.playerBanned = false;
+							}
+							break;
+						}
+					}
+					catch (NullPointerException e)
+					{
+						throw new SyntaxErrorException("pvputils.command.realPlayer");
+					}
+				}
 			}
 		}
 	}

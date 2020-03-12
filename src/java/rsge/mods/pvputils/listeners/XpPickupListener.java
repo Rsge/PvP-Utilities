@@ -17,7 +17,8 @@ public class XpPickupListener
 {
 	public XpPickupListener()
 	{
-		MinecraftForge.EVENT_BUS.register(this);
+		if (Config.xpLockEnabled)
+			MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	/**

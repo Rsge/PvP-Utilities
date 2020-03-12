@@ -28,17 +28,12 @@ hs_err_pid*
 # JSON files
 *.json
 
-#Launch files
-*.launch
-
 # Folders
-/.gradle
-/.settings
 /bin
-/build
+/.settings
+/0Media
 /config
 /crash-reports
-/gradle
 /logs
 /saves
 /world
@@ -46,5 +41,7 @@ hs_err_pid*
 # Others
 server.properties
 servers.dat
+gradlew.bat
+build.gradle
 .classpath
 .project

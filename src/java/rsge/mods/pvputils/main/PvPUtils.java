@@ -1,26 +1,10 @@
 package rsge.mods.pvputils.main;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraftforge.common.DimensionManager;
-import rsge.mods.pvputils.commands.CmdHandler;
-import rsge.mods.pvputils.config.Config;
-import rsge.mods.pvputils.data.Lives;
-import rsge.mods.pvputils.data.ScoreBoard;
-import rsge.mods.pvputils.data.Time;
-import rsge.mods.pvputils.listeners.CommandEventListener;
-import rsge.mods.pvputils.listeners.PlayerAttackInteractEventListener;
-import rsge.mods.pvputils.listeners.PlayerDeathEventListener;
-import rsge.mods.pvputils.listeners.XpPickupListener;
-import rsge.mods.pvputils.proxies.CommonProxy;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -38,6 +22,22 @@ import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.common.DimensionManager;
+import rsge.mods.pvputils.commands.CmdHandler;
+import rsge.mods.pvputils.config.Config;
+import rsge.mods.pvputils.data.Lives;
+import rsge.mods.pvputils.data.ScoreBoard;
+import rsge.mods.pvputils.data.Time;
+import rsge.mods.pvputils.listeners.CommandEventListener;
+import rsge.mods.pvputils.listeners.PlayerAttackInteractEventListener;
+import rsge.mods.pvputils.listeners.PlayerDeathEventListener;
+import rsge.mods.pvputils.listeners.XpPickupListener;
+import rsge.mods.pvputils.proxies.CommonProxy;
 
 
 /**
@@ -92,7 +92,7 @@ public class PvPUtils
 		FMLCommonHandler.instance().bus().register(instance);
 		if (Config.cmdlogEnabled)
 			new CommandEventListener();
-		if (Config.makroDisable)
+		if (Config.macroDisable)
 			new PlayerAttackInteractEventListener();
 		if (Config.xpLockEnabled)
 			new XpPickupListener();
@@ -111,6 +111,12 @@ public class PvPUtils
 	public void postInit(FMLPostInitializationEvent e)
 	{
 		Logger.info("Kleine Katzen leben laenger mit Calgon, Nyan, Nyan!");
+		if (Config.debugLogging)
+			Logger.info("Debug-logging enabled");
+		if (Config.excessiveLogging)
+			Logger.info("Excessive debug-logging enabled");
+		if (Config.constantExcessiveLogging)
+			Logger.info("Constant excessive debug-logging enabled");
 	}
 
 	/**
@@ -189,7 +195,7 @@ public class PvPUtils
 				if (Config.debugLogging)
 					Logger.info("Player '" + owner.getCommandSenderName() + "' with ID " + owner.getGameProfile().getId().toString() + " logged out");
 			}
-			
+
 			if (!Lives.worldDelete)
 			{
 				// Safe data
@@ -266,26 +272,39 @@ public class PvPUtils
 	public void onPlayerLogout(PlayerLoggedOutEvent e)
 	{
 		if (Config.debugLogging)
-			Logger.info("Player with ID " + e.player.getGameProfile().getId().toString() + " logged out");
+			Logger.info("Player '" + e.player.getCommandSenderName() + "' with ID " + e.player.getGameProfile().getId().toString() + " logged out");
 
 		if (e.player instanceof EntityPlayerMP)
 		{
 			EntityPlayerMP p = (EntityPlayerMP) e.player;
 			if (Config.livesEnabled)
-				Lives.save();
+			{
+				try
+				{
+					Lives.save();
+				}
+				catch(IOException ex)
+				{
+					Logger.error("Lives saving failed: " + ex.getLocalizedMessage());
+				}
+			}
 
 			if (Config.timeEnabled)
 			{
 				if (!MinecraftServer.getServer().isSinglePlayer())
 					Time.stopTime(p);
-				Time.save();
+				try
+				{
+					Time.save();
+				}
+				catch(IOException ex)
+				{
+					Logger.error("Time saving failed: " + ex.getLocalizedMessage());
+				}
 			}
-			if (Config.makroDisable)
+			if (Config.macroDisable)
 			{
-				PlayerAttackInteractEventListener.playerAttackMakro.remove(e.player);
-				PlayerAttackInteractEventListener.playerInteractMakro.remove(e.player);
-				PlayerAttackInteractEventListener.playerMakroTimes.remove(e.player);
-				PlayerAttackInteractEventListener.playerMakro.remove(e.player);
+				PlayerAttackInteractEventListener.logout(e.player);
 			}
 		}
 	}
@@ -293,7 +312,7 @@ public class PvPUtils
 	private int i = 0;
 
 	/**
-	 * Time passing & makro denial
+	 * Time passing
 	 * 
 	 * @param e Server tick event
 	 */
@@ -302,26 +321,14 @@ public class PvPUtils
 	{
 		i += 1;
 
-		if (i % 20 == 0)
-		{
-			PlayerAttackInteractEventListener.playerMakro.clear();
-		}
-
 		if (i == 40)
 		{
-			if (Config.excessiveLogging)
+			if (Config.constantExcessiveLogging)
 				Logger.info("Second passed");
 
 			if (Config.timeEnabled)
 				Time.second();
 
-			if (Config.makroKicker)
-			{
-				for (Entry<EntityPlayer, Byte> entry : PlayerAttackInteractEventListener.playerMakroTimes.entrySet())
-				{
-					PlayerAttackInteractEventListener.playerMakroTimes.put(entry.getKey(), (byte) 0);
-				}
-			}
 			i = 0;
 		}
 	}
@@ -343,7 +350,7 @@ public class PvPUtils
 
 			if (!msgRec.get(e.player)[0] && e.player.experienceLevel == Config.xpLockLevel - 1)
 			{
-				ChatComponentText msg = new ChatComponentText("Your are one level away from max!");
+				ChatComponentText msg = new ChatComponentText("You are one level away from max!");
 				msg.getChatStyle().setColor(EnumChatFormatting.RED);
 				e.player.addChatMessage(msg);
 				msgRec.put(e.player, new Boolean[] {true, msgRec.get(e.player)[1]});

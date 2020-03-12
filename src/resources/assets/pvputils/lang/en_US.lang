@@ -1,13 +1,15 @@
 # ======================================
-#				GENERAL
+#				 GENERAL
 # ======================================
 pvputils.message.version.1=Currently running Version 
 pvputils.message.version.2= of PvP Utilities.
 
 # ======================================
-#				COMMAND
+#				 COMMAND
 # ======================================
 pvputils.command.notFound=Command not found!
 pvputils.command.noPermission=You don't have permission to use this command!
+pvputils.command.ioException=Error trying to access data files!
 pvputils.command.positiveNumbers=Please use only positive numbers.
-pvputils.command.realPlayer=Please use only correct playernames of currently online players.
+pvputils.command.realPlayer=Please use only correct playernames of currently online players or full UUIDs.
+pvputils.command.multiplierSet=Multiplier can only be set.

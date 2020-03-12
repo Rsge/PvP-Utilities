@@ -29,7 +29,7 @@ public class Logger
 	 * @param logLevel Level of logging
 	 * @param object   to be logged
 	 */
-	public static void log(Level logLevel, Object object)
+	private static void log(Level logLevel, Object object)
 	{
 		FMLLog.log(Reference.NAME, logLevel, String.valueOf(object));
 	}

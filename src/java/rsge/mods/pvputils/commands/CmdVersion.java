@@ -20,7 +20,7 @@ public class CmdVersion extends CmdBase
 	@Override
 	public void handleCommand(ICommandSender cmdsender, String[] s)
 	{
-		// TODO Translation
-		sendChat(cmdsender, "Currently using "/* "pvputils.message.version.1" */ + Reference.VERSION + " of PvP Utilities"/* "pvputils.message.version.2" */);
+		sendChat(cmdsender, "Currently using "/* "pvputils.message.version.1" */ + Reference.VERSION
+				+ " of PvP Utilities"/* "pvputils.message.version.2" */);
 	}
 }

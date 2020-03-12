@@ -36,32 +36,35 @@ public class CmdHelp extends CmdBase
 	@Override
 	public void handleCommand(ICommandSender cmdsender, String[] args)
 	{
+		sendChat(cmdsender, "/" + Reference.MODID + " version");
 		if (isCmdsAllowed(cmdsender))
 		{
-			sendChat(cmdsender, "/" + Reference.MODID + " version");
+			sendChat(cmdsender, "/" + Reference.MODID + " save");
 			sendChat(cmdsender, "/" + Reference.MODID + " reload");
 			if (Config.livesEnabled)
 			{
-				sendChat(cmdsender, "/" + Reference.MODID + " lives <player/reset/add/remove/enable/disable>");
-				sendChat(cmdsender, "/" + Reference.MODID + " lives [reset/add/remove] [player]");
+				sendChat(cmdsender, "/" + Reference.MODID + " lives <playername/uuid/enable/disable/reset/add/remove>");
+				sendChat(cmdsender, "/" + Reference.MODID + " lives [reset/add/remove] [playername/uuid/all]");
 				sendChat(cmdsender, "/" + Reference.MODID + " lives [set/add/remove] [amount]");
-				sendChat(cmdsender, "/" + Reference.MODID + " lives [set/add/remove] [player] [amount]");
+				sendChat(cmdsender, "/" + Reference.MODID + " lives [set/add/remove] [playername/uuid/all] [amount]");
 			}
 			if (Config.timeEnabled)
 			{
-				sendChat(cmdsender, "/" + Reference.MODID + " time <player/reset/add/remove/start/stop/enable/disable>");
-				sendChat(cmdsender, "/" + Reference.MODID + " time [reset/add/remove/start/stop] [player]");
+				sendChat(cmdsender, "/" + Reference.MODID + " time <playername/uuid/enable/disable/reset/add/remove/start/stop>");
+				sendChat(cmdsender, "/" + Reference.MODID + " time [reset/add/remove/start/stop] [playername]");
+				sendChat(cmdsender, "/" + Reference.MODID + " time [reset/add/remove] [uuid/all]");
 				sendChat(cmdsender, "/" + Reference.MODID + " time [set/add/remove] [amount in minutes]");
-				sendChat(cmdsender, "/" + Reference.MODID + " time [set/add/remove] [player] [amount in minutes]");
+				sendChat(cmdsender, "/" + Reference.MODID + " time [set/add/remove] [playername/uuid/all] [amount in minutes]");
+				sendChat(cmdsender, "/" + Reference.MODID + " time set multiplier [percentage]");
+				sendChat(cmdsender, "/" + Reference.MODID + " time set multiplier [playername/uuid/all] [percentage]");
 			}
 		}
 		else
 		{
-			sendChat(cmdsender, "/" + Reference.MODID + " version");
 			if (Config.livesEnabled)
-				sendChat(cmdsender, "/" + Reference.MODID + " lives <player>");
+				sendChat(cmdsender, "/" + Reference.MODID + " lives <playername/uuid>");
 			if (Config.timeEnabled)
-				sendChat(cmdsender, "/" + Reference.MODID + " time <player>");
+				sendChat(cmdsender, "/" + Reference.MODID + " time <playername/uuid>");
 		}
 
 	}

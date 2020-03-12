@@ -1,5 +1,7 @@
 package rsge.mods.pvputils.commands;
 
+import java.io.IOException;
+
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import rsge.mods.pvputils.config.Config;
@@ -43,10 +45,17 @@ public class CmdSave extends CmdBase
 		if (!isCmdsAllowed(cmdsender))
 			throw new CommandException("pvputils.command.noPermission");
 
-		if (Config.livesEnabled)
-			Lives.save();
-		if (Config.timeEnabled)
-			Time.save();
+		try
+		{
+			if (Config.livesEnabled)
+				Lives.save();
+			if (Config.timeEnabled)
+				Time.save();
+		}
+		catch (IOException e)
+		{
+			throw new CommandException("pvputils.command.ioException");
+		}
 
 		sendChat(cmdsender, "Data Saved");
 	}

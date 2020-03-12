@@ -1,5 +1,7 @@
 package rsge.mods.pvputils.commands;
 
+import java.io.IOException;
+
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import rsge.mods.pvputils.config.Config;
@@ -40,11 +42,10 @@ public class CmdReload extends CmdBase
 	@Override
 	public void handleCommand(ICommandSender cmdsender, String[] args)
 	{
+		if (!isCmdsAllowed(cmdsender))
+			throw new CommandException("pvputils.command.noPermission");
 		try
 		{
-			if (!isCmdsAllowed(cmdsender))
-				throw new CommandException("pvputils.command.noPermission");
-
 			if (Config.livesEnabled)
 				Lives.init();
 			if (Config.timeEnabled)
@@ -52,9 +53,9 @@ public class CmdReload extends CmdBase
 
 			sendChat(cmdsender, "Data reloaded");
 		}
-		catch (Exception ex)
+		catch (IOException ex)
 		{
-			throw new RuntimeException(ex);
+			throw new CommandException("pvputils.command.ioException");
 		}
 	}
 }

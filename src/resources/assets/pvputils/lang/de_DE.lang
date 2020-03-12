@@ -9,5 +9,7 @@ pvputils.message.version.2= von PvP Utilities installiert.
 # ======================================
 pvputils.command.notFound=Befehl nicht gefunden!
 pvputils.command.noPermission=Du hast nicht die Erlaubnis, diesen Befehl zu verwenden!
-pvputils.command.positiveNumbers=Bitte verwende nur positive Zahlen.
-pvputils.command.realPlayer=Bitte verwende nur richtige Spielernamen von Spielern, die momentan online sind.
+pvputils.command.ioException=Fehler beim Zugriff auf die .dat-Dateien!
+pvputils.command.positiveNumbers=Bitte verwende nur positive Zahlen größer 0.
+pvputils.command.realPlayer=Bitte verwende nur richtige Spielernamen von Spielern, die momentan online sind, oder vollständige UUIDs.
+pvputils.command.multiplierSet=Der Multiplikator kann nur mit "set" gesetzt werden.

@@ -1,5 +1,8 @@
 package rsge.mods.pvputils.listeners;
 
+import cpw.mods.fml.common.eventhandler.EventPriority;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.MinecraftForge;
@@ -8,9 +11,6 @@ import rsge.mods.pvputils.config.Config;
 import rsge.mods.pvputils.data.Lives;
 import rsge.mods.pvputils.data.ScoreBoard;
 import rsge.mods.pvputils.main.Logger;
-import cpw.mods.fml.common.eventhandler.EventPriority;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 
 
 /**
