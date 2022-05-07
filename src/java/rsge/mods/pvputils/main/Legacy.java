@@ -25,8 +25,7 @@ import rsge.mods.pvputils.config.Config;
  * 
  * @author Rsge
  */
-public class Legacy
-{
+public class Legacy {
 	private static HashMap<String, Byte> playerlives = new HashMap<String, Byte>();
 	private static HashMap<UUID, Long> playerTimes = new HashMap<UUID, Long>();
 	private static HashMap<UUID, Boolean> playerOnline = new HashMap<UUID, Boolean>();
@@ -37,16 +36,13 @@ public class Legacy
 	@SuppressWarnings("unused")
 	private static LocalDate lastDate;
 
-	public static void init() throws IOException
-	{
+	public static void init() throws IOException {
 		// Figure out, why this isn't working...
 		// Lives
 		DataInputStream datain = new DataInputStream(new FileInputStream(Reference.lifeData));
-		try
-		{
+		try{
 			int entries = datain.readInt();
-			for (int i = 0; i < entries; i++)
-			{
+			for (int i = 0; i < entries; i++){
 				String uuid = datain.readUTF();
 				byte lives = datain.readByte();
 				playerlives.put(uuid, lives);
@@ -54,8 +50,7 @@ public class Legacy
 					Logger.info(uuid + " has " + lives + " lives left");
 			}
 		}
-		catch (EOFException ex)
-		{
+		catch (EOFException ex){
 			if (Config.debugLogging)
 				Logger.warn("lives.dat-File empty! (This is not an Error!)");
 		}
@@ -63,15 +58,12 @@ public class Legacy
 
 	}
 
-	public static void save()
-	{
+	public static void save() {
 		// Lives
-		try
-		{
+		try{
 			DataOutputStream dataout = new DataOutputStream(new FileOutputStream(Reference.lifeData));
 			dataout.writeInt(playerlives.size());
-			for (Entry<String, Byte> entry : playerlives.entrySet())
-			{
+			for (Entry<String, Byte> entry : playerlives.entrySet()){
 				String uuid = entry.getKey();
 				byte lives = entry.getValue();
 				dataout.writeUTF(uuid);
@@ -80,12 +72,10 @@ public class Legacy
 			dataout.flush();
 			dataout.close();
 
-			if (Config.debugLogging)
-			{
+			if (Config.debugLogging){
 				DataInputStream datain = new DataInputStream(new FileInputStream(Reference.timeData));
 				int entries = datain.readInt();
-				for (int i = 1; i < entries; i++)
-				{
+				for (int i = 1; i < entries; i++){
 					String uuid = datain.readUTF();
 					byte lives = datain.readByte();
 					Logger.info("File: " + uuid + " has " + lives + " lives left");
@@ -93,8 +83,7 @@ public class Legacy
 				datain.close();
 			}
 		}
-		catch (Exception ex)
-		{
+		catch (Exception ex){
 			throw new RuntimeException(ex);
 		}
 	}
@@ -102,30 +91,24 @@ public class Legacy
 	/**
 	 * Old second Method
 	 */
-	public static void second()
-	{
+	public static void second() {
 		// For each player...
-		for (Entry<UUID, Long> entry : playerTimes.entrySet())
-		{
+		for (Entry<UUID, Long> entry : playerTimes.entrySet()){
 			UUID u = entry.getKey();
 			long t = entry.getValue();
 			boolean on = playerOnline.get(u);
 
 			// ... if player is online
-			if (on)
-			{
+			if (on){
 				// Old Version of: Get the player entity from the player's UUID
 				@SuppressWarnings("unchecked")
 				List<EntityPlayer> ps = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
-				for (EntityPlayer p : ps)
-				{
+				for (EntityPlayer p : ps){
 					UUID u2 = p.getGameProfile().getId();
-					if (u.equals(u2))
-					{
+					if (u.equals(u2)){
 
 						// Stop time if player is in spawn area
-						if (Config.stopInSpawn)
-						{
+						if (Config.stopInSpawn){
 
 							// Much longer old version with square radius:
 							int playerX = p.getPlayerCoordinates().posX;
@@ -141,15 +124,11 @@ public class Legacy
 							boolean inRangeZ = comparedZ >= -Config.stopInSpawnRadius && comparedZ <= Config.stopInSpawnRadius;
 							if (Config.constantExcessiveLogging)
 								Logger.info(u.toString() + " ComparedX = " + comparedX + " ComparedY = " + comparedY + " ComparedZ = " + comparedZ);
-							if (!inRangeX || !inRangeY || !inRangeZ)
-							{
+							if (!inRangeX || !inRangeY || !inRangeZ){
 
-								if (comparedX > Config.stopInSpawnRadius || comparedY > Config.stopInSpawnRadius || comparedZ > Config.stopInSpawnRadius)
-								{
-									try
-									{
-										if (!playerInSpawn.get(u))
-										{
+								if (comparedX > Config.stopInSpawnRadius || comparedY > Config.stopInSpawnRadius || comparedZ > Config.stopInSpawnRadius){
+									try{
+										if (!playerInSpawn.get(u)){
 											playerInSpawn.put(u, true);
 											p.addChatMessage(new ChatComponentText("You left the spawnzone, your time started again.")
 													.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.YELLOW)));
@@ -160,17 +139,13 @@ public class Legacy
 										if (Config.constantExcessiveLogging)
 											Logger.info(u.toString() + "'s second passed");
 									}
-									catch (NullPointerException ex)
-									{
+									catch (NullPointerException ex){
 										playerInSpawn.put(u, false);
 									}
 								}
-								else
-								{
-									try
-									{
-										if (playerInSpawn.get(u))
-										{
+								else{
+									try{
+										if (playerInSpawn.get(u)){
 											playerInSpawn.put(u, false);
 											p.addChatMessage(new ChatComponentText("You entered the spawnzone, your time stopped.")
 													.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.YELLOW)));
@@ -179,8 +154,7 @@ public class Legacy
 										if (Config.constantExcessiveLogging)
 											Logger.info(u.toString() + "'s second didn't pass");
 									}
-									catch (NullPointerException ex)
-									{}
+									catch (NullPointerException ex){}
 								}
 							}
 							else
@@ -193,6 +167,5 @@ public class Legacy
 		lastDate = LocalDate.now();
 	}
 
-	private static void passTime(UUID u, EntityPlayer p, long t)
-	{}
+	private static void passTime(UUID u, EntityPlayer p, long t) {}
 }

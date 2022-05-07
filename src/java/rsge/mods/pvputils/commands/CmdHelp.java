@@ -10,10 +10,8 @@ import rsge.mods.pvputils.main.Reference;
  * 
  * @author Rsge
  */
-public class CmdHelp extends CmdBase
-{
-	public CmdHelp()
-	{
+public class CmdHelp extends CmdBase {
+	public CmdHelp() {
 		super("help");
 		permissionLevel = -1;
 	}
@@ -22,34 +20,28 @@ public class CmdHelp extends CmdBase
 
 	// Overrides
 	@Override
-	public boolean isVisible(ICommandSender cmdsender)
-	{
+	public boolean isVisible(ICommandSender cmdsender) {
 		return true;
 	}
 
 	@Override
-	public int getPermissionLevel()
-	{
+	public int getPermissionLevel() {
 		return -1;
 	}
 
 	@Override
-	public void handleCommand(ICommandSender cmdsender, String[] args)
-	{
+	public void handleCommand(ICommandSender cmdsender, String[] args) {
 		sendChat(cmdsender, "/" + Reference.MODID + " version");
-		if (isCmdsAllowed(cmdsender))
-		{
+		if (isCmdsAllowed(cmdsender)){
 			sendChat(cmdsender, "/" + Reference.MODID + " save");
 			sendChat(cmdsender, "/" + Reference.MODID + " reload");
-			if (Config.livesEnabled)
-			{
+			if (Config.livesEnabled){
 				sendChat(cmdsender, "/" + Reference.MODID + " lives <playername/uuid/enable/disable/reset/add/remove>");
 				sendChat(cmdsender, "/" + Reference.MODID + " lives [reset/add/remove] [playername/uuid/all]");
 				sendChat(cmdsender, "/" + Reference.MODID + " lives [set/add/remove] [amount]");
 				sendChat(cmdsender, "/" + Reference.MODID + " lives [set/add/remove] [playername/uuid/all] [amount]");
 			}
-			if (Config.timeEnabled)
-			{
+			if (Config.timeEnabled){
 				sendChat(cmdsender, "/" + Reference.MODID + " time <playername/uuid/enable/disable/reset/add/remove/start/stop>");
 				sendChat(cmdsender, "/" + Reference.MODID + " time [reset/add/remove/start/stop] [playername]");
 				sendChat(cmdsender, "/" + Reference.MODID + " time [reset/add/remove] [uuid/all]");
@@ -59,8 +51,7 @@ public class CmdHelp extends CmdBase
 				sendChat(cmdsender, "/" + Reference.MODID + " time set multiplier [playername/uuid/all] [percentage]");
 			}
 		}
-		else
-		{
+		else{
 			if (Config.livesEnabled)
 				sendChat(cmdsender, "/" + Reference.MODID + " lives <playername/uuid>");
 			if (Config.timeEnabled)

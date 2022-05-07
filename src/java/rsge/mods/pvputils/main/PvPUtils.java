@@ -49,8 +49,7 @@ import rsge.mods.pvputils.proxies.CommonProxy;
  * @author Rsge
  */
 @Mod(modid = Reference.MODID, name = Reference.NAME, version = Reference.VERSION, dependencies = Reference.DEPENDENCIES, acceptedMinecraftVersions = Reference.MCVERSIONS, acceptableRemoteVersions = Reference.REMOTEVERSIONS)
-public class PvPUtils
-{
+public class PvPUtils {
 	/**
 	 * PvPUtils Instance
 	 */
@@ -74,8 +73,7 @@ public class PvPUtils
 	 * @param e Pre-Initialization event
 	 */
 	@EventHandler
-	public void preInit(FMLPreInitializationEvent e)
-	{
+	public void preInit(FMLPreInitializationEvent e) {
 		Reference.configPath = e.getModConfigurationDirectory().getAbsolutePath();
 		Reference.configFile = new File(Reference.configPath + File.separator + Reference.MODID + ".cfg");
 		Config.init(Reference.configFile);
@@ -87,8 +85,7 @@ public class PvPUtils
 	 * @param e Initialization event
 	 */
 	@EventHandler
-	public void init(FMLInitializationEvent e)
-	{
+	public void init(FMLInitializationEvent e) {
 		FMLCommonHandler.instance().bus().register(instance);
 		if (Config.cmdlogEnabled)
 			new CommandEventListener();
@@ -108,8 +105,7 @@ public class PvPUtils
 	 * @param e Post-Initialization event
 	 */
 	@EventHandler
-	public void postInit(FMLPostInitializationEvent e)
-	{
+	public void postInit(FMLPostInitializationEvent e) {
 		Logger.info("Kleine Katzen leben laenger mit Calgon, Nyan, Nyan!");
 		if (Config.debugLogging)
 			Logger.info("Debug-logging enabled");
@@ -125,8 +121,7 @@ public class PvPUtils
 	 * @param e Server starting event
 	 */
 	@EventHandler
-	public void serverLoad(FMLServerStartingEvent e)
-	{
+	public void serverLoad(FMLServerStartingEvent e) {
 		e.registerServerCommand(CmdHandler.instance);
 	}
 
@@ -136,18 +131,14 @@ public class PvPUtils
 	 * @param e Server started event
 	 */
 	@EventHandler
-	public void serverLoaded(FMLServerStartedEvent e)
-	{
-		try
-		{
-			if (Config.livesEnabled || Config.timeEnabled || Config.cmdlogEnabled)
-			{
+	public void serverLoaded(FMLServerStartedEvent e) {
+		try{
+			if (Config.livesEnabled || Config.timeEnabled || Config.cmdlogEnabled){
 				Reference.dataDir = new File(DimensionManager.getCurrentSaveRootDirectory(), Reference.MODID);
 				if (!Reference.dataDir.exists())
 					Reference.dataDir.mkdirs();
 
-				if (Config.livesEnabled)
-				{
+				if (Config.livesEnabled){
 					Lives.init();
 
 					if (Config.scoreboardEnabled)
@@ -157,16 +148,14 @@ public class PvPUtils
 				if (Config.timeEnabled)
 					Time.init();
 
-				if (Config.cmdlogEnabled)
-				{
+				if (Config.cmdlogEnabled){
 					Reference.loggedCmds = new File(Reference.dataDir, "LoggedCommands.txt");
 					if (!Reference.loggedCmds.exists())
 						Reference.loggedCmds.createNewFile();
 				}
 			}
 		}
-		catch (Exception ex)
-		{
+		catch (Exception ex){
 			throw new RuntimeException(ex);
 		}
 	}
@@ -177,16 +166,13 @@ public class PvPUtils
 	 * @param e Server stopped event
 	 */
 	@EventHandler
-	public void serverStop(FMLServerStoppedEvent e)
-	{
+	public void serverStop(FMLServerStoppedEvent e) {
 		// Because the owner (sometimes?) doesn't seem to log out of a SP-world
 		MinecraftServer mcs = MinecraftServer.getServer();
-		if (mcs.isSinglePlayer())
-		{
+		if (mcs.isSinglePlayer()){
 			@SuppressWarnings("rawtypes")
 			List players = mcs.getConfigurationManager().playerEntityList;
-			if (!players.isEmpty())
-			{
+			if (!players.isEmpty()){
 				EntityPlayerMP owner = (EntityPlayerMP) players.get(0);
 
 				if (Config.timeEnabled)
@@ -196,8 +182,7 @@ public class PvPUtils
 					Logger.info("Player '" + owner.getCommandSenderName() + "' with ID " + owner.getGameProfile().getId().toString() + " logged out");
 			}
 
-			if (!Lives.worldDelete)
-			{
+			if (!Lives.worldDelete){
 				// Safe data
 				if (Config.livesEnabled)
 					Lives.stop();
@@ -228,18 +213,15 @@ public class PvPUtils
 	 * @param e Player logged in event
 	 */
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void onPlayerLogin(PlayerLoggedInEvent e)
-	{
+	public void onPlayerLogin(PlayerLoggedInEvent e) {
 		if (Config.debugLogging)
 			Logger.info("Player '" + e.player.getCommandSenderName() + "' with ID '" + e.player.getGameProfile().getId().toString() + "' logged in");
 
-		if (e.player instanceof EntityPlayerMP)
-		{
+		if (e.player instanceof EntityPlayerMP){
 			EntityPlayerMP p = (EntityPlayerMP) e.player;
 
 			// Lives
-			if (Config.livesEnabled)
-			{
+			if (Config.livesEnabled){
 				Lives.initPlayer(p);
 
 				if (!Config.noLifeChat)
@@ -250,8 +232,7 @@ public class PvPUtils
 			}
 
 			// Time
-			if (Config.timeEnabled)
-			{
+			if (Config.timeEnabled){
 				Time.initPlayer(p);
 
 				if (!Config.noTimeChat)
@@ -269,41 +250,32 @@ public class PvPUtils
 	 * @param e Player logged out event
 	 */
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public void onPlayerLogout(PlayerLoggedOutEvent e)
-	{
+	public void onPlayerLogout(PlayerLoggedOutEvent e) {
 		if (Config.debugLogging)
 			Logger.info("Player '" + e.player.getCommandSenderName() + "' with ID " + e.player.getGameProfile().getId().toString() + " logged out");
 
-		if (e.player instanceof EntityPlayerMP)
-		{
+		if (e.player instanceof EntityPlayerMP){
 			EntityPlayerMP p = (EntityPlayerMP) e.player;
-			if (Config.livesEnabled)
-			{
-				try
-				{
+			if (Config.livesEnabled){
+				try{
 					Lives.save();
 				}
-				catch(IOException ex)
-				{
+				catch (IOException ex){
 					Logger.error("Lives saving failed: " + ex.getLocalizedMessage());
 				}
 			}
 
-			if (Config.timeEnabled)
-			{
+			if (Config.timeEnabled){
 				if (!MinecraftServer.getServer().isSinglePlayer())
 					Time.stopTime(p);
-				try
-				{
+				try{
 					Time.save();
 				}
-				catch(IOException ex)
-				{
+				catch (IOException ex){
 					Logger.error("Time saving failed: " + ex.getLocalizedMessage());
 				}
 			}
-			if (Config.macroDisable)
-			{
+			if (Config.macroDisable){
 				PlayerAttackInteractEventListener.logout(e.player);
 			}
 		}
@@ -317,12 +289,10 @@ public class PvPUtils
 	 * @param e Server tick event
 	 */
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public void onServerTick(ServerTickEvent e)
-	{
+	public void onServerTick(ServerTickEvent e) {
 		i += 1;
 
-		if (i == 40)
-		{
+		if (i == 40){
 			if (Config.constantExcessiveLogging)
 				Logger.info("Second passed");
 
@@ -341,29 +311,24 @@ public class PvPUtils
 	 * @param e Player tick event
 	 */
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void onPlayerTick(PlayerTickEvent e)
-	{
-		if (Config.xpLockEnabled)
-		{
+	public void onPlayerTick(PlayerTickEvent e) {
+		if (Config.xpLockEnabled){
 			if (!msgRec.containsKey(e.player))
 				msgRec.put(e.player, new Boolean[] {false, false});
 
-			if (!msgRec.get(e.player)[0] && e.player.experienceLevel == Config.xpLockLevel - 1)
-			{
+			if (!msgRec.get(e.player)[0] && e.player.experienceLevel == Config.xpLockLevel - 1){
 				ChatComponentText msg = new ChatComponentText("You are one level away from max!");
 				msg.getChatStyle().setColor(EnumChatFormatting.RED);
 				e.player.addChatMessage(msg);
 				msgRec.put(e.player, new Boolean[] {true, msgRec.get(e.player)[1]});
 			}
-			else if (!msgRec.get(e.player)[1] && e.player.experienceLevel == Config.xpLockLevel)
-			{
+			else if (!msgRec.get(e.player)[1] && e.player.experienceLevel == Config.xpLockLevel){
 				ChatComponentText msg = new ChatComponentText("You reached max level! XP-orbs won't be collected! Any further XP will be deleted!");
 				msg.getChatStyle().setColor(EnumChatFormatting.RED);
 				e.player.addChatMessage(msg);
 				msgRec.put(e.player, new Boolean[] {msgRec.get(e.player)[0], true});
 			}
-			else if (msgRec.get(e.player)[0] && e.player.experienceLevel < Config.xpLockLevel - 1)
-			{
+			else if (msgRec.get(e.player)[0] && e.player.experienceLevel < Config.xpLockLevel - 1){
 				msgRec.put(e.player, new Boolean[] {false, false});
 			}
 

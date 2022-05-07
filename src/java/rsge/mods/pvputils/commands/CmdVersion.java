@@ -9,17 +9,14 @@ import rsge.mods.pvputils.main.Reference;
  * 
  * @author Rsge
  */
-public class CmdVersion extends CmdBase
-{
-	public CmdVersion()
-	{
+public class CmdVersion extends CmdBase {
+	public CmdVersion() {
 		super("version");
 		permissionLevel = 0;
 	}
 
 	@Override
-	public void handleCommand(ICommandSender cmdsender, String[] s)
-	{
+	public void handleCommand(ICommandSender cmdsender, String[] s) {
 		sendChat(cmdsender, "Currently using "/* "pvputils.message.version.1" */ + Reference.VERSION
 				+ " of PvP Utilities"/* "pvputils.message.version.2" */);
 	}

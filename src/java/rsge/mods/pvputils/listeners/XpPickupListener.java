@@ -13,10 +13,8 @@ import rsge.mods.pvputils.config.Config;
  * 
  * @author Rsge
  */
-public class XpPickupListener
-{
-	public XpPickupListener()
-	{
+public class XpPickupListener {
+	public XpPickupListener() {
 		if (Config.xpLockEnabled)
 			MinecraftForge.EVENT_BUS.register(this);
 	}
@@ -27,8 +25,7 @@ public class XpPickupListener
 	 * @param e Player XP pickup event
 	 */
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public void onXpPickup(PlayerPickupXpEvent e)
-	{
+	public void onXpPickup(PlayerPickupXpEvent e) {
 		if (Config.xpLockEnabled && e.entityPlayer.experienceLevel >= Config.xpLockLevel)
 			e.setCanceled(true);
 	}

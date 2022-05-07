@@ -19,8 +19,7 @@ import rsge.mods.pvputils.config.Config;
  * 
  * @author Rsge
  */
-public class CmdHandler extends CommandBase
-{
+public class CmdHandler extends CommandBase {
 
 	public static Map<String, ISubCmd> commands = new LinkedHashMap<>();
 	public static CmdHandler instance = new CmdHandler();
@@ -32,8 +31,7 @@ public class CmdHandler extends CommandBase
 	 * 
 	 * @param cmd to register
 	 */
-	public static void register(ISubCmd cmd)
-	{
+	public static void register(ISubCmd cmd) {
 		commands.put(cmd.getCommandName(), cmd);
 	}
 
@@ -43,8 +41,7 @@ public class CmdHandler extends CommandBase
 	 * @param  name of command
 	 * @return      if command is registered
 	 */
-	public static boolean commandExists(String name)
-	{
+	public static boolean commandExists(String name) {
 		return commands.containsKey(name);
 	}
 
@@ -53,12 +50,10 @@ public class CmdHandler extends CommandBase
 	/**
 	 * List of all commands after base command to register
 	 */
-	static
-	{
+	static{
 		register(new CmdHelp());
 		register(new CmdVersion());
-		if (Config.livesEnabled || Config.timeEnabled)
-		{
+		if (Config.livesEnabled || Config.timeEnabled){
 			register(new CmdSave());
 			register(new CmdReload());
 			if (Config.livesEnabled)
@@ -72,8 +67,7 @@ public class CmdHandler extends CommandBase
 
 	// Overrides standard setting:
 	@Override
-	public boolean canCommandSenderUseCommand(ICommandSender cmdsender)
-	{
+	public boolean canCommandSenderUseCommand(ICommandSender cmdsender) {
 		// Everyone can use this command
 		return true;
 	}
@@ -82,8 +76,7 @@ public class CmdHandler extends CommandBase
 	 * @return Name of command
 	 */
 	@Override
-	public String getCommandName()
-	{
+	public String getCommandName() {
 		return "pvputils";
 	}
 
@@ -92,8 +85,7 @@ public class CmdHandler extends CommandBase
 	/**
 	 * @return Aliases of command
 	 */
-	public List<String> getCommandAliases()
-	{
+	public List<String> getCommandAliases() {
 		this.alias = new ArrayList<String>();
 		this.alias.add("pvputils");
 		return this.alias;
@@ -102,24 +94,20 @@ public class CmdHandler extends CommandBase
 	/**
 	 * @return "/[Command name] help"
 	 */
-	public String getCommandUsage(ICommandSender cmdsender)
-	{
+	public String getCommandUsage(ICommandSender cmdsender) {
 		return "/" + getCommandName() + " help";
 		// ==> /pvputils help
 	}
 
 	@Override
 	@SuppressWarnings(value = {"unchecked", "rawtypes"})
-	public List addTabCompletionOptions(ICommandSender cmdsender, String[] args)
-	{
-		if (args.length == 1)
-		{
+	public List addTabCompletionOptions(ICommandSender cmdsender, String[] args) {
+		if (args.length == 1){
 			// "s" is given the value of "args" at the position 0
 			String s = args[0];
 			List res = new ArrayList();
 			// Goes through each command in the "commands"-list
-			for (ISubCmd cmd : commands.values())
-			{
+			for (ISubCmd cmd : commands.values()){
 				// If the command is visible to the sender and starts with "s"
 				if (cmd.isVisible(cmdsender) && cmd.getCommandName().startsWith(s))
 					// adds it to the results-list
@@ -127,8 +115,7 @@ public class CmdHandler extends CommandBase
 			}
 			return res;
 		}
-		else if (commands.containsKey(args[0]) && commands.get(args[0]).isVisible(cmdsender))
-		{
+		else if (commands.containsKey(args[0]) && commands.get(args[0]).isVisible(cmdsender)){
 			return commands.get(args[0]).addTabCompletionOptions(cmdsender, Arrays.copyOfRange(args, 1, args.length));
 		}
 		return null;
@@ -140,20 +127,16 @@ public class CmdHandler extends CommandBase
 	 * @param cmdsender Player who send command
 	 * @param args      Arguments of command
 	 */
-	public void processCommand(ICommandSender cmdsender, String[] args)
-	{
+	public void processCommand(ICommandSender cmdsender, String[] args) {
 		// If there are no arguments
-		if (args.length < 1)
-		{
+		if (args.length < 1){
 			// starts the help command
 			args = new String[] {"help"};
 		}
 		ISubCmd cmd = commands.get(args[0]);
-		if (cmd != null)
-		{
+		if (cmd != null){
 			if (cmd.isVisible(cmdsender) && (cmdsender.canCommandSenderUseCommand(cmd.getPermissionLevel(), getCommandName() + " " + cmd.getCommandName())
-					|| (cmdsender instanceof EntityPlayerMP && cmd.getPermissionLevel() <= 0)))
-			{
+					|| (cmdsender instanceof EntityPlayerMP && cmd.getPermissionLevel() <= 0))){
 				cmd.handleCommand(cmdsender, Arrays.copyOfRange(args, 1, args.length));
 				return;
 			}

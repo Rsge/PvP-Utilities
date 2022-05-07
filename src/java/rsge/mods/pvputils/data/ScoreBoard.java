@@ -14,19 +14,16 @@ import rsge.mods.pvputils.main.Logger;
  * 
  * @author Rsge
  */
-public class ScoreBoard
-{
+public class ScoreBoard {
 	public static Scoreboard sb;
 
 	/**
 	 * Initializing scoreboard for lives
 	 */
-	public static void init()
-	{
+	public static void init() {
 		sb = MinecraftServer.getServer().worldServerForDimension(0).getScoreboard();
 
-		if (sb.getObjective("Lives") != null && sb.getObjective("Lives").getCriteria() != IScoreObjectiveCriteria.field_96641_b)
-		{
+		if (sb.getObjective("Lives") != null && sb.getObjective("Lives").getCriteria() != IScoreObjectiveCriteria.field_96641_b){
 			sb.func_96519_k(sb.getObjective("Lives"));
 			sb.addScoreObjective("Lives", IScoreObjectiveCriteria.field_96641_b);
 		}
@@ -44,8 +41,7 @@ public class ScoreBoard
 	 * 
 	 * @param p Player
 	 */
-	public static void updatePlayer(EntityPlayer p)
-	{
+	public static void updatePlayer(EntityPlayer p) {
 		Score s = sb.func_96529_a(p.getCommandSenderName(), sb.getObjective("Lives"));
 		s.setScorePoints(Lives.getLives(p.getGameProfile().getId()));
 	}

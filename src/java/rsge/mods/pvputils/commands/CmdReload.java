@@ -15,18 +15,15 @@ import rsge.mods.pvputils.data.Time;
  * 
  * @author Rsge
  */
-public class CmdReload extends CmdBase
-{
-	public CmdReload()
-	{
+public class CmdReload extends CmdBase {
+	public CmdReload() {
 		super("reload");
 		permissionLevel = 3;
 	}
 
 	// Overrides
 	@Override
-	public boolean isVisible(ICommandSender cmdsender)
-	{
+	public boolean isVisible(ICommandSender cmdsender) {
 		if (isCmdsAllowed(cmdsender))
 			return true;
 		else
@@ -34,18 +31,15 @@ public class CmdReload extends CmdBase
 	}
 
 	@Override
-	public int getPermissionLevel()
-	{
+	public int getPermissionLevel() {
 		return 3;
 	}
 
 	@Override
-	public void handleCommand(ICommandSender cmdsender, String[] args)
-	{
+	public void handleCommand(ICommandSender cmdsender, String[] args) {
 		if (!isCmdsAllowed(cmdsender))
 			throw new CommandException("pvputils.command.noPermission");
-		try
-		{
+		try{
 			if (Config.livesEnabled)
 				Lives.init();
 			if (Config.timeEnabled)
@@ -53,8 +47,7 @@ public class CmdReload extends CmdBase
 
 			sendChat(cmdsender, "Data reloaded");
 		}
-		catch (IOException ex)
-		{
+		catch (IOException ex){
 			throw new CommandException("pvputils.command.ioException");
 		}
 	}

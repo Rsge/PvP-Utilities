@@ -1,15 +1,13 @@
 package rsge.mods.pvputils.proxies;
 
-public class ClientProxy extends CommonProxy
-{
+public class ClientProxy extends CommonProxy {
 	/**
 	 * If proxy is clientside
 	 * 
 	 * @return true
 	 */
 	@Override
-	public boolean isClient()
-	{
+	public boolean isClient() {
 		return true;
 	}
 
@@ -19,8 +17,7 @@ public class ClientProxy extends CommonProxy
 	 * @return false
 	 */
 	@Override
-	public boolean isServer()
-	{
+	public boolean isServer() {
 		return false;
 	}
 }

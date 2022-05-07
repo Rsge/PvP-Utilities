@@ -15,18 +15,15 @@ import rsge.mods.pvputils.data.Time;
  * 
  * @author Rsge
  */
-public class CmdSave extends CmdBase
-{
-	public CmdSave()
-	{
+public class CmdSave extends CmdBase {
+	public CmdSave() {
 		super("save");
 		permissionLevel = 3;
 	}
 
 	// Overrides
 	@Override
-	public boolean isVisible(ICommandSender cmdsender)
-	{
+	public boolean isVisible(ICommandSender cmdsender) {
 		if (isCmdsAllowed(cmdsender))
 			return true;
 		else
@@ -34,26 +31,22 @@ public class CmdSave extends CmdBase
 	}
 
 	@Override
-	public int getPermissionLevel()
-	{
+	public int getPermissionLevel() {
 		return 3;
 	}
 
 	@Override
-	public void handleCommand(ICommandSender cmdsender, String[] args)
-	{
+	public void handleCommand(ICommandSender cmdsender, String[] args) {
 		if (!isCmdsAllowed(cmdsender))
 			throw new CommandException("pvputils.command.noPermission");
 
-		try
-		{
+		try{
 			if (Config.livesEnabled)
 				Lives.save();
 			if (Config.timeEnabled)
 				Time.save();
 		}
-		catch (IOException e)
-		{
+		catch (IOException e){
 			throw new CommandException("pvputils.command.ioException");
 		}
 

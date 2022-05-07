@@ -37,8 +37,7 @@ import rsge.mods.pvputils.main.Reference;
  * 
  * @author Rsge
  */
-public class Lives
-{
+public class Lives {
 	public static boolean tooManyAdded;
 	public static boolean playerBanned;
 	public static boolean worldDelete;
@@ -51,28 +50,23 @@ public class Lives
 	 * 
 	 * @throws IOException
 	 */
-	public static void init() throws IOException
-	{
+	public static void init() throws IOException {
 		Reference.lifeData = new File(Reference.dataDir, "lives.dat");
-		if (!Reference.lifeData.exists())
-		{
+		if (!Reference.lifeData.exists()){
 			// Create the life-data and exit
 			Reference.lifeData.createNewFile();
 			Logger.info("lives.dat created");
 			return;
 		}
 
-		try (BufferedReader br = Files.newBufferedReader(Reference.lifeData.toPath());)
-		{
+		try (BufferedReader br = Files.newBufferedReader(Reference.lifeData.toPath());){
 			int entries = Integer.parseInt(br.readLine());
-			for (int i = 0; i < entries; i++)
-			{
+			for (int i = 0; i < entries; i++){
 				String uuid = br.readLine();
 				UUID u = null;
 				String lives = br.readLine();
 				byte l;
-				try
-				{
+				try{
 					u = UUID.fromString(uuid);
 					l = Byte.parseByte(lives);
 
@@ -81,16 +75,14 @@ public class Lives
 					if (Config.debugLogging)
 						Logger.info(u + " has " + lives + " lives left");
 				}
-				catch (NumberFormatException ex)
-				{
+				catch (NumberFormatException ex){
 					l = Config.startLives;
 
 					String clog = "ERROR Trying to get " + uuid + "'s lives (Found " + lives + "). Resetting to starting lives.";
 					String flog = "[Found " + lives + " instead of number. Reset to default.]";
 					logError(uuid, clog, flog);
 				}
-				catch (IllegalArgumentException ex)
-				{
+				catch (IllegalArgumentException ex){
 					String clog = "ERROR: " + uuid + " is not a valid UUID. It had " + lives + " associated with it. Deleting now!";
 					String flog = "[Not a valid UUID. It had " + lives + " associated with it. Deleted entry.]";
 					logError(uuid, clog, flog);
@@ -98,8 +90,7 @@ public class Lives
 			}
 			br.close();
 		}
-		catch (NullPointerException ex)
-		{
+		catch (NullPointerException ex){
 			if (Config.debugLogging)
 				Logger.info("lives.dat-File empty! This is not an Error!");
 		}
@@ -112,19 +103,16 @@ public class Lives
 	 * @param clog Console log string
 	 * @param flog File log string
 	 */
-	private static void logError(String uuid, String clog, String flog)
-	{
+	private static void logError(String uuid, String clog, String flog) {
 		// Log to console
 		Logger.error(clog);
 		// Log to Cmdlog-File
-		try (BufferedWriter bw = Files.newBufferedWriter(Reference.loggedCmds.toPath(), StandardOpenOption.APPEND))
-		{
+		try (BufferedWriter bw = Files.newBufferedWriter(Reference.loggedCmds.toPath(), StandardOpenOption.APPEND)){
 			DateTimeFormatter dtf = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(Locale.UK);
 			flog = "[" + LocalDateTime.now().format(dtf) + "] [" + uuid + "] " + flog + "\n";
 			bw.write(flog);
 		}
-		catch (Exception exc)
-		{
+		catch (Exception exc){
 			Logger.error("ERROR Trying to log this reset");
 		}
 	}
@@ -134,19 +122,15 @@ public class Lives
 	/**
 	 * Save data and clear for new init
 	 */
-	public static boolean stop()
-	{
-		try
-		{
+	public static boolean stop() {
+		try{
 			save();
 		}
-		catch (IOException ex)
-		{
+		catch (IOException ex){
 			Logger.error("Lives saving failed: " + ex.getLocalizedMessage());
 			return false;
 		}
-		finally
-		{
+		finally{
 			playerLives.clear();
 		}
 		return true;
@@ -157,14 +141,12 @@ public class Lives
 	 * 
 	 * @throws IOException
 	 */
-	public static void save() throws IOException
-	{
+	public static void save() throws IOException {
 		BufferedWriter bw = Files.newBufferedWriter(Reference.lifeData.toPath());
 
 		bw.write(Integer.toString(playerLives.size()));
 		bw.newLine();
-		for (Entry<UUID, Byte> entry : playerLives.entrySet())
-		{
+		for (Entry<UUID, Byte> entry : playerLives.entrySet()){
 			String uuid = entry.getKey().toString();
 			String lives = Byte.toString(entry.getValue());
 
@@ -185,11 +167,9 @@ public class Lives
 	 * 
 	 * @param p Player
 	 */
-	public static void initPlayer(EntityPlayerMP p)
-	{
+	public static void initPlayer(EntityPlayerMP p) {
 		UUID u = p.getGameProfile().getId();
-		if (!playerLives.containsKey(u))
-		{
+		if (!playerLives.containsKey(u)){
 			playerLives.put(u, Config.startLives);
 			Logger.info("Initialized Player " + u.toString() + " with " + Config.startLives + " lives");
 		}
@@ -203,8 +183,7 @@ public class Lives
 	 * 
 	 * @param p Player
 	 */
-	public static void chatLives(EntityPlayer p)
-	{
+	public static void chatLives(EntityPlayer p) {
 		chatLivesTo(p, p);
 	}
 
@@ -214,8 +193,7 @@ public class Lives
 	 * @param p   Player who's lives to look at
 	 * @param rec Player who sent command and receives info
 	 */
-	public static void chatLivesTo(EntityPlayer p, EntityPlayer rec)
-	{
+	public static void chatLivesTo(EntityPlayer p, EntityPlayer rec) {
 		UUID u = p.getGameProfile().getId();
 		byte l = getLives(u);
 		IChatComponent msgStart;
@@ -251,8 +229,7 @@ public class Lives
 	 * @param  l Amount of lives as byte
 	 * @return   Chat-component of lives in appropriate color
 	 */
-	public static IChatComponent formatLives(byte l)
-	{
+	public static IChatComponent formatLives(byte l) {
 		double compare = (double) l / (double) Config.maxLives;
 		IChatComponent msgLives = new ChatComponentText(Long.toString(l));
 		// Show the number of lives in different colors depending on their ratio to the max lives
@@ -281,21 +258,17 @@ public class Lives
 	 * @param p   EntityPlayerMP of player
 	 * @param src Damage source that killed player
 	 */
-	public static void death(EntityPlayerMP p, DamageSource src)
-	{
+	public static void death(EntityPlayerMP p, DamageSource src) {
 		boolean wasPlayer = src.getDamageType().equals("player") || src.getEntity() instanceof EntityPlayer;
 		boolean wasMonster = src.getDamageType().equals("mob") || src.getEntity() instanceof EntityLiving;
 
-		if (Config.livesTakenBy == 1 && wasPlayer)
-		{
+		if (Config.livesTakenBy == 1 && wasPlayer){
 			removeLives(p, 1);
 		}
-		else if (Config.livesTakenBy == 2 && (wasMonster || wasPlayer))
-		{
+		else if (Config.livesTakenBy == 2 && (wasMonster || wasPlayer)){
 			removeLives(p, 1);
 		}
-		else if (Config.livesTakenBy == 3)
-		{
+		else if (Config.livesTakenBy == 3){
 			removeLives(p, 1);
 		}
 	}
@@ -307,10 +280,8 @@ public class Lives
 	 * 
 	 * @param l Amount of lives
 	 */
-	public static void addLivesToAll(int l)
-	{
-		for (UUID u : playerLives.keySet())
-		{
+	public static void addLivesToAll(int l) {
+		for (UUID u : playerLives.keySet()){
 			addLives(u, l);
 		}
 	}
@@ -321,8 +292,7 @@ public class Lives
 	 * @param p EntityPlayerMP of player
 	 * @param l Amount of lives
 	 */
-	public static void addLives(EntityPlayerMP p, int l)
-	{
+	public static void addLives(EntityPlayerMP p, int l) {
 		UUID u = p.getGameProfile().getId();
 		addLives(u, l);
 	}
@@ -333,8 +303,7 @@ public class Lives
 	 * @param u UUID of player
 	 * @param l Amount of lives
 	 */
-	public static void addLives(UUID u, int l)
-	{
+	public static void addLives(UUID u, int l) {
 		byte lives = getLives(u);
 		setLives(u, lives + l);
 	}
@@ -346,10 +315,8 @@ public class Lives
 	 * 
 	 * @param l Amount of lives
 	 */
-	public static void removeLivesFromAll(int l)
-	{
-		for (UUID u : playerLives.keySet())
-		{
+	public static void removeLivesFromAll(int l) {
+		for (UUID u : playerLives.keySet()){
 			removeLives(u, l);
 		}
 	}
@@ -360,8 +327,7 @@ public class Lives
 	 * @param p EntityPlayerMP of player
 	 * @param l Amount of lives
 	 */
-	public static void removeLives(EntityPlayerMP p, int l)
-	{
+	public static void removeLives(EntityPlayerMP p, int l) {
 		UUID u = p.getGameProfile().getId();
 		byte lives = getLives(u);
 		setLives(p, lives - l);
@@ -373,8 +339,7 @@ public class Lives
 	 * @param u UUID of player
 	 * @param l Amount of lives
 	 */
-	public static void removeLives(UUID u, int l)
-	{
+	public static void removeLives(UUID u, int l) {
 		byte lives = getLives(u);
 		setLives(u, lives - l);
 	}
@@ -384,8 +349,7 @@ public class Lives
 	/**
 	 * Reset lives of all players to starting value
 	 */
-	public static void resetAllLives()
-	{
+	public static void resetAllLives() {
 		setAllLives(Config.startLives);
 	}
 
@@ -394,8 +358,7 @@ public class Lives
 	 * 
 	 * @param p EntityPlayerMP of player
 	 */
-	public static void resetLives(EntityPlayerMP p)
-	{
+	public static void resetLives(EntityPlayerMP p) {
 		setLives(p, Config.startLives);
 	}
 
@@ -404,11 +367,10 @@ public class Lives
 	 * 
 	 * @param u UUID of player
 	 */
-	public static void resetLives(UUID u)
-	{
+	public static void resetLives(UUID u) {
 		setLives(u, Config.startLives);
 	}
-	
+
 	/* ————————————————————————————————————————————————————— */
 
 	/**
@@ -416,10 +378,8 @@ public class Lives
 	 * 
 	 * @param l Amount of lives
 	 */
-	public static void setAllLives(int l)
-	{
-		for (UUID u : playerLives.keySet())
-		{
+	public static void setAllLives(int l) {
+		for (UUID u : playerLives.keySet()){
 			setLives(u, l);
 		}
 	}
@@ -430,20 +390,17 @@ public class Lives
 	 * @param p EntityPlayerMP of player
 	 * @param l Amount of lives
 	 */
-	public static void setLives(EntityPlayerMP p, int l)
-	{
+	public static void setLives(EntityPlayerMP p, int l) {
 		UUID u = p.getGameProfile().getId();
-		if (l > 0)
-		{
+		if (l > 0){
 			setLives(u, l);
 		}
-		else
-		{
+		else{
 			playerLives.replace(u, (byte) 0);
 			outOfLives(p);
 			playerBanned = true;
 		}
-		
+
 		if (Config.scoreboardEnabled)
 			ScoreBoard.updatePlayer(p);
 	}
@@ -454,17 +411,14 @@ public class Lives
 	 * @param u UUID of player
 	 * @param l Amount of lives
 	 */
-	public static void setLives(UUID u, int l)
-	{
+	public static void setLives(UUID u, int l) {
 		if (l <= Config.maxLives && l > 0)
 			playerLives.replace(u, (byte) l);
-		else if (l > Config.maxLives)
-		{
+		else if (l > Config.maxLives){
 			playerLives.replace(u, Config.maxLives);
 			Lives.tooManyAdded = true;
 		}
-		else
-		{
+		else{
 			playerLives.replace(u, (byte) 0);
 			outOfLives(u);
 			playerBanned = true;
@@ -477,8 +431,7 @@ public class Lives
 	 * @param  u of player
 	 * @return   lives of player with UUID
 	 */
-	public static byte getLives(UUID u)
-	{
+	public static byte getLives(UUID u) {
 		return playerLives.get(u);
 	}
 
@@ -489,8 +442,7 @@ public class Lives
 	 * 
 	 * @param p UUID of player
 	 */
-	private static void outOfLives(UUID u)
-	{
+	private static void outOfLives(UUID u) {
 		GameProfile g = new GameProfile(u, null);
 		MinecraftServer mcs = MinecraftServer.getServer();
 		EntityPlayerMP p = mcs.getConfigurationManager().createPlayerForUser(g);
@@ -502,8 +454,7 @@ public class Lives
 	 * 
 	 * @param p EntityPlayerMP of player
 	 */
-	private static void outOfLives(EntityPlayerMP p)
-	{
+	private static void outOfLives(EntityPlayerMP p) {
 		// HQM had some problems with TConstruct, so I'll clear the player's inventory to prevent them, too O:)
 		p.inventory.clearInventory(null, -1);
 
@@ -511,14 +462,12 @@ public class Lives
 		String deathMessage = "You're out of Lives! Sorry, the battle is over for you :(";
 		String banReason = "Out of lives in battle";
 
-		if (mcs.isSinglePlayer() && p.getCommandSenderName().equals(mcs.getServerOwner()))
-		{
+		if (mcs.isSinglePlayer() && p.getCommandSenderName().equals(mcs.getServerOwner())){
 			worldDelete = true;
 			((EntityPlayerMP) p).playerNetServerHandler.kickPlayerFromServer(deathMessage);
 			mcs.deleteWorldAndStopServer();
 		}
-		else
-		{
+		else{
 			UserListBansEntry banEntry = new UserListBansEntry(p.getGameProfile(), (Date) null, Reference.NAME, (Date) null, banReason);
 			mcs.getConfigurationManager().func_152608_h().func_152687_a(banEntry);
 			p.playerNetServerHandler.kickPlayerFromServer(deathMessage);

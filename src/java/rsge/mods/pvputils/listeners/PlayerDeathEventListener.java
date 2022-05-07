@@ -18,10 +18,8 @@ import rsge.mods.pvputils.main.Logger;
  * 
  * @author Rsge
  */
-public class PlayerDeathEventListener
-{
-	public PlayerDeathEventListener()
-	{
+public class PlayerDeathEventListener {
+	public PlayerDeathEventListener() {
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
@@ -31,15 +29,13 @@ public class PlayerDeathEventListener
 	 * @param e Player death event
 	 */
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public void onPlayerDeath(LivingDeathEvent e)
-	{
+	public void onPlayerDeath(LivingDeathEvent e) {
 		if (Config.excessiveLogging)
 			Logger.info("\"" + e.entityLiving.getCommandSenderName() + "\" died");
 		else if (Config.debugLogging && e.entityLiving instanceof EntityPlayerMP)
 			Logger.info("Player \"" + e.entityLiving.getCommandSenderName() + "\" died");
 
-		if (e.entityLiving instanceof EntityPlayerMP)
-		{
+		if (e.entityLiving instanceof EntityPlayerMP){
 			EntityPlayerMP p = (EntityPlayerMP) e.entityLiving;
 			Lives.death(p, e.source);
 
@@ -54,13 +50,11 @@ public class PlayerDeathEventListener
 	 * @param e Player respawn event
 	 */
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void onPlayerRespawn(PlayerRespawnEvent e)
-	{
+	public void onPlayerRespawn(PlayerRespawnEvent e) {
 		if (Config.debugLogging)
 			Logger.info("Player \"" + e.player.getCommandSenderName() + "\" respawned");
 
-		if (!Config.noLifeChat)
-		{
+		if (!Config.noLifeChat){
 			EntityPlayerMP p = (EntityPlayerMP) e.player;
 			Lives.chatLives(p);
 		}

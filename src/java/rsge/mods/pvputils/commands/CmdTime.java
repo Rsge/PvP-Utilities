@@ -27,10 +27,8 @@ import rsge.mods.pvputils.main.Logger;
  * 
  * @author Rsge
  */
-public class CmdTime extends CmdBase
-{
-	public CmdTime()
-	{
+public class CmdTime extends CmdBase {
+	public CmdTime() {
 		super("time", "enable", "disable", "start", "stop", "reset", "add", "remove");
 		permissionLevel = 0;
 	}
@@ -39,14 +37,12 @@ public class CmdTime extends CmdBase
 
 	// Overrides
 	@Override
-	public boolean isVisible(ICommandSender cmdsender)
-	{
+	public boolean isVisible(ICommandSender cmdsender) {
 		return true;
 	}
 
 	@Override
-	public List<String> addTabCompletionOptions(ICommandSender cmdsender, String[] args)
-	{
+	public List<String> addTabCompletionOptions(ICommandSender cmdsender, String[] args) {
 		if (isCmdsAllowed(cmdsender))
 			return super.addTabCompletionOptions(cmdsender, args);
 		else
@@ -54,48 +50,41 @@ public class CmdTime extends CmdBase
 	}
 
 	@Override
-	public int[] getSyntaxOptions(ICommandSender cmdsender)
-	{
+	public int[] getSyntaxOptions(ICommandSender cmdsender) {
 		return isCmdsAllowed(cmdsender) ? new int[] {0, 1, 2, 3} : super.getSyntaxOptions(cmdsender);
 	}
 
 	/* ————————————————————————————————————————————————————— */
 
 	@Override
-	public void handleCommand(ICommandSender cmdsender, String[] args)
-	{
+	public void handleCommand(ICommandSender cmdsender, String[] args) {
 		String s;
 		String max = "You reached the max possible time.";
 		EntityPlayerMP p;
 
 		// With no extra arguments
 		// /pvputils time
-		if (args.length == 0 && cmdsender instanceof EntityPlayer)
-		{
+		if (args.length == 0 && cmdsender instanceof EntityPlayer){
 			p = (EntityPlayerMP) cmdsender;
 			Time.chatTime(p);
 		}
 
 		// With 1 argument
 		// /pvputils time <enable/disable/start/stop/reset/add/remove/playername/uuid>
-		else if (args.length == 1 && cmdsender instanceof EntityPlayer)
-		{
+		else if (args.length == 1 && cmdsender instanceof EntityPlayer){
 			p = (EntityPlayerMP) cmdsender;
 
-			switch (args[0].toLowerCase())
-			{
+			switch (args[0].toLowerCase()) {
 			// /pvputils time enable
 			case "enable":
 				if (!isCmdsAllowed(cmdsender))
 					throw new CommandException("pvputils.command.noPermission");
 
-				try
-				{
+				try{
 					Time.init();
 					Config.timeEnabled = true;
 				}
-				catch (IOException e)
-				{
+				catch (IOException e){
 					throw new CommandException("pvputils.command.ioException");
 				}
 
@@ -159,14 +148,12 @@ public class CmdTime extends CmdBase
 
 				Time.addTime(p, Config.addedTime);
 
-				if (!Time.tooMuchAdded)
-				{
+				if (!Time.tooMuchAdded){
 					s = "Added " + Config.addedTime / 60 + " minutes to ";
 					sendChat(cmdsender, s + "yourself.");
 					Logger.logCmd(cmdsender, s + "him-/herself.");
 				}
-				else
-				{
+				else{
 					sendChat(cmdsender, max);
 					Logger.logCmd(cmdsender, "Tried adding " + Config.addedTime / 60 + " minutes, reached max amount.");
 					Time.tooMuchAdded = false;
@@ -191,8 +178,7 @@ public class CmdTime extends CmdBase
 			// /pvputils time [playername/uuid]
 			default:
 				// /pvputils time [uuid]
-				try
-				{
+				try{
 					UUID u = UUID.fromString(args[0]);
 					long t = Time.getTime(u);
 
@@ -204,17 +190,14 @@ public class CmdTime extends CmdBase
 					msgFinal.setChatStyle(new ChatStyle().setBold(true));
 					cmdsender.addChatMessage(msgFinal);
 				}
-				catch (IllegalArgumentException ex)
-				{
-					try
-					{
+				catch (IllegalArgumentException ex){
+					try{
 						String name = args[0];
 						p = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(name);
 						EntityPlayer receiver = (EntityPlayer) cmdsender;
 						Time.chatTimeTo(p, receiver);
 					}
-					catch (Exception exc)
-					{
+					catch (Exception exc){
 						throw new SyntaxErrorException("pvputils.command.realPlayer");
 					}
 				}
@@ -224,38 +207,32 @@ public class CmdTime extends CmdBase
 
 		// With 2 arguments
 		// /pvputils time [start/stop/reset/set/add/remove] [playername/uuid/all/amount]
-		else if (args.length == 2 && cmdsender instanceof EntityPlayer)
-		{
+		else if (args.length == 2 && cmdsender instanceof EntityPlayer){
 			if (!isCmdsAllowed(cmdsender))
 				throw new CommandException("pvputils.command.noPermission");
 
 			// /pvputils time [set/add/remove] [amount]
-			if (StringUtils.isNumeric(args[1]))
-			{
+			if (StringUtils.isNumeric(args[1])){
 				int a = Integer.parseInt(args[1]) * 60;
 				if (a < 0)
 					throw new WrongUsageException("pvputils.command.positiveNumbers");
 				p = (EntityPlayerMP) cmdsender;
 
-				switch (args[0].toLowerCase())
-				{
+				switch (args[0].toLowerCase()) {
 				// /pvputils time set [amount]
 				case "set":
 					Time.setTime(p, a);
 
-					if (Time.tooMuchAdded)
-					{
+					if (Time.tooMuchAdded){
 						sendChat(cmdsender, max);
 						Logger.logCmd(cmdsender, "Set his/her time to max.");
 						Time.tooMuchAdded = false;
 					}
-					else if (Time.playerOutOfTime)
-					{
+					else if (Time.playerOutOfTime){
 						Logger.logCmd(cmdsender, "Removed his/her remaining time.");
 						Time.playerOutOfTime = false;
 					}
-					else
-					{
+					else{
 						sendChat(cmdsender, "Set your time to " + a / 60 + " minutes.");
 						Logger.logCmd(cmdsender, "Set his/her time to " + a / 60 + " minutes.");
 					}
@@ -265,14 +242,12 @@ public class CmdTime extends CmdBase
 				case "add":
 					Time.addTime(p, a);
 
-					if (!Time.tooMuchAdded)
-					{
+					if (!Time.tooMuchAdded){
 						s = "Added " + a / 60 + " minutes to ";
 						sendChat(cmdsender, s + "yourself.");
 						Logger.logCmd(cmdsender, s + "him-/herself.");
 					}
-					else
-					{
+					else{
 						sendChat(cmdsender, max);
 						Logger.logCmd(cmdsender, "Tried adding " + a + " minutes him-/herself, reached max.");
 						Time.tooMuchAdded = false;
@@ -283,14 +258,12 @@ public class CmdTime extends CmdBase
 				case "remove":
 					Time.removeTime(p, a);
 
-					if (!Time.playerOutOfTime)
-					{
+					if (!Time.playerOutOfTime){
 						s = "Removed " + a / 60 + " minutes from ";
 						sendChat(cmdsender, "yourself.");
 						Logger.logCmd(cmdsender, s + "him-/herself.");
 					}
-					else
-					{
+					else{
 						Logger.logCmd(cmdsender, "Removed his/her remaining time.");
 						Time.playerOutOfTime = false;
 					}
@@ -298,10 +271,8 @@ public class CmdTime extends CmdBase
 				}
 			}
 			// /pvputils time [start/stop/reset/add/remove] [playername/uuid/all]
-			else if (args[1].equalsIgnoreCase("all"))
-			{
-				switch (args[0].toLowerCase())
-				{
+			else if (args[1].equalsIgnoreCase("all")){
+				switch (args[0].toLowerCase()) {
 				// /pvputils time reset all
 				case "reset":
 					Time.resetAllTime();
@@ -318,8 +289,7 @@ public class CmdTime extends CmdBase
 					s = "Added " + Config.addedTime / 60 + " minutes to everyone.";
 					sendChat(cmdsender, s);
 					Logger.logCmd(cmdsender, s);
-					if (Time.tooMuchAdded)
-					{
+					if (Time.tooMuchAdded){
 						sendChat(cmdsender, "In the process someone reached the max possible minutes.");
 						Time.tooMuchAdded = false;
 					}
@@ -332,8 +302,7 @@ public class CmdTime extends CmdBase
 					s = "Removed " + Config.addedTime / 60 + " minutes from everyone.";
 					sendChat(cmdsender, s);
 					Logger.logCmd(cmdsender, s);
-					if (Time.playerOutOfTime)
-					{
+					if (Time.playerOutOfTime){
 						sendChat(cmdsender, "In the process someone ran out of time.");
 						Time.playerOutOfTime = false;
 					}
@@ -341,15 +310,12 @@ public class CmdTime extends CmdBase
 				}
 			}
 			// / pvputils time [start/stop/reset/add/remove] [playername/uuid]
-			else
-			{
+			else{
 				// /pvputils time [reset/add/remove] [uuid]
-				try
-				{
+				try{
 					UUID u = UUID.fromString(args[1]);
 
-					switch (args[0].toLowerCase())
-					{
+					switch (args[0].toLowerCase()) {
 					// /pvputils time reset [uuid]
 					case "reset":
 						Time.resetTime(u);
@@ -362,14 +328,12 @@ public class CmdTime extends CmdBase
 					case "add":
 						Time.addTime(u, Config.addedTime);
 
-						if (!Time.tooMuchAdded)
-						{
+						if (!Time.tooMuchAdded){
 							s = "Added " + Config.addedTime / 60 + " minutes to ";
 							sendChat(cmdsender, s + "this guy.");
 							Logger.logCmd(cmdsender, s + u.toString() + ".");
 						}
-						else
-						{
+						else{
 							sendChat(cmdsender, "This guy reached the max possible minutes.");
 							Logger.logCmd(cmdsender, "Tried adding " + Config.addedTime / 60 + " minutes to " + u.toString() + ", reached max.");
 							Time.tooMuchAdded = false;
@@ -380,14 +344,12 @@ public class CmdTime extends CmdBase
 					case "remove":
 						Time.removeTime(u, Config.addedTime);
 
-						if (!Time.playerOutOfTime)
-						{
+						if (!Time.playerOutOfTime){
 							s = "Removed " + Config.addedTime + " minutes from ";
 							sendChat(cmdsender, s + " this guy.");
 							Logger.logCmd(cmdsender, s + u.toString() + ".");
 						}
-						else
-						{
+						else{
 							s = "Removed remaining time from ";
 							sendChat(cmdsender, s + "this guy.");
 							Logger.logCmd(cmdsender, s + u.toString() + ".");
@@ -396,16 +358,13 @@ public class CmdTime extends CmdBase
 						break;
 					}
 				}
-				catch (IllegalArgumentException ex)
-				{
+				catch (IllegalArgumentException ex){
 					// /pvputils time [start/stop/reset/add/remove] [playername]
-					try
-					{
+					try{
 						String name = args[1];
 						p = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(name);
 
-						switch (args[0].toLowerCase())
-						{
+						switch (args[0].toLowerCase()) {
 						// /pvputils time start [playername]
 						case "start":
 							Time.startTime(p);
@@ -437,14 +396,12 @@ public class CmdTime extends CmdBase
 						case "add":
 							Time.addTime(p, Config.addedTime);
 
-							if (!Time.tooMuchAdded)
-							{
+							if (!Time.tooMuchAdded){
 								s = "Added " + Config.addedTime / 60 + " minutes to " + name + ".";
 								sendChat(cmdsender, s);
 								Logger.logCmd(cmdsender, s);
 							}
-							else
-							{
+							else{
 								sendChat(cmdsender, name + " reached the max possible time.");
 								Logger.logCmd(cmdsender, "Tried adding " + Config.addedTime / 60 + " minutes to " + name + ", reached max.");
 								Time.tooMuchAdded = false;
@@ -455,14 +412,12 @@ public class CmdTime extends CmdBase
 						case "remove":
 							Time.removeTime(p, Config.addedTime);
 
-							if (!Time.playerOutOfTime)
-							{
+							if (!Time.playerOutOfTime){
 								s = "Removed " + Config.addedTime / 60 + " minutes from " + name + ".";
 								sendChat(cmdsender, s);
 								Logger.logCmd(cmdsender, s);
 							}
-							else
-							{
+							else{
 								s = "Removed remaining time from " + name + ".";
 								sendChat(cmdsender, "Removed remaining time from " + name + ". Player kicked!");
 								Logger.logCmd(cmdsender, s);
@@ -472,40 +427,33 @@ public class CmdTime extends CmdBase
 							break;
 						}
 					}
-					catch (NullPointerException e)
-					{
+					catch (NullPointerException e){
 						throw new SyntaxErrorException("pvputils.command.realPlayer");
 					}
 				}
 			}
 		}
-		
+
 		// With 3 arguments
 		// /pvputils time [set/add/remove] [playername/uuid/all/multiplier] [amount/percentage]
-		else if (args.length == 3 && cmdsender instanceof EntityPlayer)
-		{
+		else if (args.length == 3 && cmdsender instanceof EntityPlayer){
 			if (!isCmdsAllowed(cmdsender))
 				throw new CommandException("pvputils.command.noPermission");
 
 			int a = 0;
-			try
-			{
+			try{
 				a = Integer.parseInt(args[2]);
 				if (a < 0)
 					throw new WrongUsageException("pvputils.command.positiveNumbers");
 			}
-			catch (NumberFormatException ex)
-			{
+			catch (NumberFormatException ex){
 				throw new SyntaxErrorException("pvputils.command.notFound");
 			}
 
 			// /pvputils time set multiplier [percentage]
-			if (args[1].equalsIgnoreCase("multiplier"))
-			{
-				if (args[0].equalsIgnoreCase("set"))
-				{
-					if (a < 0)
-					{
+			if (args[1].equalsIgnoreCase("multiplier")){
+				if (args[0].equalsIgnoreCase("set")){
+					if (a < 0){
 						p = (EntityPlayerMP) cmdsender;
 						float m = (float) a / 100.0f;
 						Time.setTimeMultiplier(p, m);
@@ -520,22 +468,18 @@ public class CmdTime extends CmdBase
 				a *= 60;
 
 			// /pvputils time [set/add/remove] all [amount]
-			if (args[1].equalsIgnoreCase("all"))
-			{
-				switch (args[0].toLowerCase())
-				{
+			if (args[1].equalsIgnoreCase("all")){
+				switch (args[0].toLowerCase()) {
 				// /pvputils set all [amount]
 				case "set":
-					if (Lives.tooManyAdded)
-					{
+					if (Lives.tooManyAdded){
 						Time.setAllTime(a);
 
 						s = "Set everyone's time to " + a / 60 + "minutes.";
 						sendChat(cmdsender, s);
 						Logger.logCmd(cmdsender, s);
 					}
-					else
-					{
+					else{
 						sendChat(cmdsender, "Everyone has the max possible time.");
 						Logger.logCmd(cmdsender, "Set everyone's time to max.");
 						Time.tooMuchAdded = false;
@@ -549,8 +493,7 @@ public class CmdTime extends CmdBase
 					s = "Added " + Config.addedTime / 60 + " minutes to everyone.";
 					sendChat(cmdsender, s);
 					Logger.logCmd(cmdsender, s);
-					if (Time.tooMuchAdded)
-					{
+					if (Time.tooMuchAdded){
 						sendChat(cmdsender, "In the process someone reached the max possible minutes.");
 						Time.tooMuchAdded = false;
 					}
@@ -563,8 +506,7 @@ public class CmdTime extends CmdBase
 					s = "Removed " + a / 60 + " minutes from everyone.";
 					sendChat(cmdsender, s);
 					Logger.logCmd(cmdsender, s);
-					if (Time.playerOutOfTime)
-					{
+					if (Time.playerOutOfTime){
 						sendChat(cmdsender, "In the process someone lost his/her last remaining time.");
 						Time.playerOutOfTime = false;
 					}
@@ -572,32 +514,26 @@ public class CmdTime extends CmdBase
 				}
 			}
 			// /pvputils time [set/add/remove] [playername/uuid] [amount]
-			else
-			{
+			else{
 				// /pvputils time [set/add/remove] [uuid] [amount]
-				try
-				{
+				try{
 					UUID u = UUID.fromString(args[1]);
 
-					switch (args[0].toLowerCase())
-					{
+					switch (args[0].toLowerCase()) {
 					// /pvputils time set [uuid] [amount]
 					case "set":
 						Time.setTime(u, a);
 
-						if (Time.tooMuchAdded)
-						{
+						if (Time.tooMuchAdded){
 							sendChat(cmdsender, "This guy reached the max possible time.");
 							Logger.logCmd(cmdsender, "Set time of " + u.toString() + " to max.");
 							Time.tooMuchAdded = false;
 						}
-						else if (Time.playerOutOfTime)
-						{
+						else if (Time.playerOutOfTime){
 							Logger.logCmd(cmdsender, "Removed this guy's remaining time.");
 							Time.playerOutOfTime = false;
 						}
-						else
-						{
+						else{
 							sendChat(cmdsender, "Set this guy's time to " + a / 60 + " minutes.");
 							Logger.logCmd(cmdsender, "Set time of " + u.toString() + " to " + a / 60 + " minutes.");
 						}
@@ -607,14 +543,12 @@ public class CmdTime extends CmdBase
 					case "add":
 						Time.addTime(u, a);
 
-						if (!Time.tooMuchAdded)
-						{
+						if (!Time.tooMuchAdded){
 							s = "Added " + a / 60 + " minutes to ";
 							sendChat(cmdsender, s + "this guy.");
 							Logger.logCmd(cmdsender, s + u.toString() + ".");
 						}
-						else
-						{
+						else{
 							sendChat(cmdsender, "This guy reached the max possible time.");
 							Logger.logCmd(cmdsender, "Tried adding " + a / 60 + " minutes to " + u.toString() + ", reached max.");
 							Time.tooMuchAdded = false;
@@ -625,14 +559,12 @@ public class CmdTime extends CmdBase
 					case "remove":
 						Time.removeTime(u, a);
 
-						if (!Time.playerOutOfTime)
-						{
+						if (!Time.playerOutOfTime){
 							s = "Removed " + a / 60 + " minutes from ";
 							sendChat(cmdsender, s + "this guy.");
 							Logger.logCmd(cmdsender, s + u.toString() + ".");
 						}
-						else
-						{
+						else{
 							s = "Removed remaining time from ";
 							sendChat(cmdsender, s + "this guy.");
 							Logger.logCmd(cmdsender, s + u.toString() + ".");
@@ -640,34 +572,28 @@ public class CmdTime extends CmdBase
 						break;
 					}
 				}
-				catch (IllegalArgumentException ex)
-				{
-					try
-					{
+				catch (IllegalArgumentException ex){
+					try{
 						String name = args[1];
 						p = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(name);
 
-						switch (args[0].toLowerCase())
-						{
+						switch (args[0].toLowerCase()) {
 						// /pvputils time set [playername] [amount]
 						case "set":
 							Time.setTime(p, a);
 
-							if (Time.tooMuchAdded)
-							{
+							if (Time.tooMuchAdded){
 								s = "Set " + name + "'s time to " + a / 60 + " minutes.";
 								sendChat(cmdsender, s);
 								Logger.logCmd(cmdsender, s);
 							}
-							else if (Time.playerOutOfTime)
-							{
+							else if (Time.playerOutOfTime){
 								s = "Removed remaining time from " + name + ". Player kicked!";
 								sendChat(cmdsender, s);
 								Logger.logCmd(cmdsender, s);
 								Time.playerOutOfTime = false;
 							}
-							else
-							{
+							else{
 								sendChat(cmdsender, name + " reached the max possible time.");
 								Logger.logCmd(cmdsender, "Set " + name + "'s time to max.");
 								Time.tooMuchAdded = false;
@@ -678,14 +604,12 @@ public class CmdTime extends CmdBase
 						case "add":
 							Time.addTime(p, a);
 
-							if (!Time.tooMuchAdded)
-							{
+							if (!Time.tooMuchAdded){
 								s = "Added " + a / 60 + " minutes to " + name + ".";
 								sendChat(cmdsender, s);
 								Logger.logCmd(cmdsender, s);
 							}
-							else
-							{
+							else{
 								sendChat(cmdsender, name + " reached the max possible time.");
 								Logger.logCmd(cmdsender, "Tried adding " + a / 60 + " minutes to " + name + ", reached max.");
 								Time.tooMuchAdded = false;
@@ -696,14 +620,12 @@ public class CmdTime extends CmdBase
 						case "remove":
 							Time.removeTime(p, a);
 
-							if (!Time.playerOutOfTime)
-							{
+							if (!Time.playerOutOfTime){
 								s = "Removed " + a / 60 + " minutes from " + name + ".";
 								sendChat(cmdsender, s);
 								Logger.logCmd(cmdsender, s);
 							}
-							else
-							{
+							else{
 								s = "Removed remaining time from " + name + ". Player kicked!";
 								sendChat(cmdsender, s);
 								Logger.logCmd(cmdsender, s);
@@ -713,8 +635,7 @@ public class CmdTime extends CmdBase
 							break;
 						}
 					}
-					catch (NullPointerException e)
-					{
+					catch (NullPointerException e){
 						throw new SyntaxErrorException("pvputils.command.realPlayer");
 					}
 				}
@@ -722,52 +643,41 @@ public class CmdTime extends CmdBase
 		}
 		// With all 4 arguments
 		// /pvputils time set multiplier [playername/uuid/all] [percentage]
-		else if (args.length == 4 && cmdsender instanceof EntityPlayer)
-		{
+		else if (args.length == 4 && cmdsender instanceof EntityPlayer){
 			if (!isCmdsAllowed(cmdsender))
 				throw new CommandException("pvputils.command.noPermission");
-			
-			if (args[1].equalsIgnoreCase("multiplier"))
-			{
-				if (args[0].equalsIgnoreCase("set"))
-				{
+
+			if (args[1].equalsIgnoreCase("multiplier")){
+				if (args[0].equalsIgnoreCase("set")){
 					int a = 1;
-					try
-					{
+					try{
 						a = Integer.parseInt(args[3]);
 						if (a < 0)
 							throw new WrongUsageException("pvputils.command.positiveNumbers");
 					}
-					catch (NumberFormatException ex)
-					{
+					catch (NumberFormatException ex){
 						throw new SyntaxErrorException("pvputils.command.notFound");
 					}
 					float m = (float) a / 100.0f;
-					
+
 					// /pvputils time set multiplier all [percentage]
-					if(args[2].equalsIgnoreCase("all"))
-					{
+					if (args[2].equalsIgnoreCase("all")){
 						Time.setAllTimeMultipliers(m);
 					}
-					else
-					{
+					else{
 						// /pvputils time set multiplier [uuid] [percentage]
-						try
-						{
+						try{
 							UUID u = UUID.fromString(args[2]);
 							Time.setTimeMultiplier(u, m);
 						}
-						catch (IllegalArgumentException ex)
-						{
+						catch (IllegalArgumentException ex){
 							// /pvputils time set multiplier [playername] [percentage]
-							try
-							{
+							try{
 								String name = args[2];
 								p = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(name);
 								Time.setTimeMultiplier(p, m);
 							}
-							catch (NullPointerException e)
-							{
+							catch (NullPointerException e){
 								throw new SyntaxErrorException("pvputils.command.realPlayer");
 							}
 						}

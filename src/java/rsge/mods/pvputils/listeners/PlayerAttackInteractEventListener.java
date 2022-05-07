@@ -22,10 +22,8 @@ import rsge.mods.pvputils.main.Logger;
  * 
  * @author Rsge
  */
-public class PlayerAttackInteractEventListener
-{
-	public PlayerAttackInteractEventListener()
-	{
+public class PlayerAttackInteractEventListener {
+	public PlayerAttackInteractEventListener() {
 		if (Config.macroDisable)
 			MinecraftForge.EVENT_BUS.register(this);
 	}
@@ -40,33 +38,29 @@ public class PlayerAttackInteractEventListener
 	 * @param p Player entity
 	 * @param e PlayerInteractEvent || AttackEntityEvent
 	 */
-	private static void macroDenial(EntityPlayer p, Event e)
-	{
+	private static void macroDenial(EntityPlayer p, Event e) {
 		boolean cancelEvent = false;
 		ArrayList<Long> interactMacroTimes = new ArrayList<Long>();
 
 		// Filling the HashMaps first
-		if (!playerAttackMacroTime.containsKey(p) && e instanceof AttackEntityEvent)
-		{
+		if (!playerAttackMacroTime.containsKey(p) && e instanceof AttackEntityEvent){
 			playerAttackMacroTime.put(p, System.currentTimeMillis());
 			return;
 		}
-		if (!playerInteractMacroTimes.containsKey(p) && e instanceof PlayerInteractEvent)
-		{
+		if (!playerInteractMacroTimes.containsKey(p) && e instanceof PlayerInteractEvent){
 			interactMacroTimes.add(System.currentTimeMillis());
 			playerInteractMacroTimes.put(p, interactMacroTimes);
 			return;
 		}
 
-		//TODO how to find if clientside
+		// TODO how to find if clientside
 		MinecraftServer mcs = MinecraftServer.getServer();
 		if (Config.excessiveLogging)
 			Logger.info(e.toString() + " - " + mcs.isSinglePlayer());
 
 		// Attack events are always fired just once per click and are the more important ones to block,
 		// so block them instantly when fired too fast after the other.
-		if (e instanceof AttackEntityEvent)
-		{
+		if (e instanceof AttackEntityEvent){
 			long attackInterval = System.currentTimeMillis() - playerAttackMacroTime.get(p);
 			if (Config.excessiveLogging)
 				Logger.info("AttackEvent-Interval: " + attackInterval + " from Player " + p.getDisplayName());
@@ -74,19 +68,16 @@ public class PlayerAttackInteractEventListener
 		}
 		// Interact events are sometimes fired in strange ways and in strange intervals,
 		// so check for multiple short intervals in succession, before counting it as macro.
-		else if (e instanceof PlayerInteractEvent)
-		{
+		else if (e instanceof PlayerInteractEvent){
 			ArrayList<Long> interactTimes = new ArrayList<Long>();
 			interactTimes = playerInteractMacroTimes.get(p);
-			if (interactTimes.size() < 3)
-			{
+			if (interactTimes.size() < 3){
 				interactTimes.add(System.currentTimeMillis());
 				playerInteractMacroTimes.put(p, interactTimes);
 				return;
 			}
 
-			for (int i = 1; i < interactTimes.size(); i++)
-			{
+			for (int i = 1; i < interactTimes.size(); i++){
 				long interactInterval = interactTimes.get(i) - interactTimes.get(i - 1);
 				if (Config.excessiveLogging && i == interactTimes.size() - 1)
 					Logger.info("InteractEvent-Interval: " + interactInterval + " from Player " + p.getDisplayName());
@@ -97,8 +88,7 @@ public class PlayerAttackInteractEventListener
 		}
 
 		// Canceling event when necessary
-		if (cancelEvent)
-		{
+		if (cancelEvent){
 			e.setCanceled(true);
 			if (Config.debugLogging)
 				Logger.info("Attack/Interact-Event canceled.");
@@ -109,12 +99,10 @@ public class PlayerAttackInteractEventListener
 			p.addChatMessage(new ChatComponentText(msg));
 
 			// Handling kicking of player if necessary
-			if (Config.macroKicker)
-			{
+			if (Config.macroKicker){
 				byte macroViolation = 0;
 
-				if (!playerMacroViolation.containsKey(p))
-				{
+				if (!playerMacroViolation.containsKey(p)){
 					playerMacroViolation.put(p, macroViolation);
 					return;
 				}
@@ -122,19 +110,15 @@ public class PlayerAttackInteractEventListener
 				macroViolation = playerMacroViolation.get(p);
 				macroViolation += 1;
 
-				if (macroViolation >= Config.macroKickerTreshold)
-				{
-					try
-					{
+				if (macroViolation >= Config.macroKickerTreshold){
+					try{
 						EntityPlayerMP pmp = (EntityPlayerMP) p;
 						pmp.playerNetServerHandler.kickPlayerFromServer(msg);
 					}
-					catch (ClassCastException ex)
-					{
+					catch (ClassCastException ex){
 						Logger.error("Error trying to convert player entity for kicking");
 					}
-					finally
-					{
+					finally{
 						macroViolation = 0;
 						playerMacroViolation.put(p, macroViolation);
 					}
@@ -146,8 +130,7 @@ public class PlayerAttackInteractEventListener
 		// Updating macro times
 		if (e instanceof AttackEntityEvent)
 			playerAttackMacroTime.put(p, System.currentTimeMillis());
-		else if (e instanceof PlayerInteractEvent)
-		{
+		else if (e instanceof PlayerInteractEvent){
 			interactMacroTimes.remove(0);
 			interactMacroTimes.add(System.currentTimeMillis());
 			playerInteractMacroTimes.put(p, interactMacroTimes);
@@ -160,8 +143,7 @@ public class PlayerAttackInteractEventListener
 	 * @param e Attack entity event
 	 */
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public void onPlayerAttack(AttackEntityEvent e)
-	{
+	public void onPlayerAttack(AttackEntityEvent e) {
 		macroDenial(e.entityPlayer, e);
 	}
 
@@ -171,8 +153,7 @@ public class PlayerAttackInteractEventListener
 	 * @param e Player interact event
 	 */
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public void onPlayerInteract(PlayerInteractEvent e)
-	{
+	public void onPlayerInteract(PlayerInteractEvent e) {
 		macroDenial(e.entityPlayer, e);
 	}
 
@@ -181,8 +162,7 @@ public class PlayerAttackInteractEventListener
 	 * 
 	 * @param p Player entity
 	 */
-	public static void logout(EntityPlayer p)
-	{
+	public static void logout(EntityPlayer p) {
 		playerAttackMacroTime.remove(p);
 		playerInteractMacroTimes.remove(p);
 		playerMacroViolation.remove(p);

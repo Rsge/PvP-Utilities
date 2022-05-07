@@ -29,11 +29,13 @@ hs_err_pid*
 *.json
 
 # Folders
+/!*
+/.gradle
 /bin
-/.settings
-/0Media
+/build
 /config
 /crash-reports
+/gradle
 /logs
 /saves
 /world

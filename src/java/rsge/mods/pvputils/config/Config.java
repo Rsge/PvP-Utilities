@@ -11,8 +11,7 @@ import rsge.mods.pvputils.main.Logger;
  * 
  * @author Rsge
  */
-public class Config
-{
+public class Config {
 	private static final String CAT_MODULES_KEY = "1_Modules";
 	private static final String CAT_MODULES_COMMENT = "Options to enable and disable parts of the mod.";
 
@@ -183,11 +182,9 @@ public class Config
 	 * 
 	 * @param file Config file
 	 */
-	public static void init(File file)
-	{
+	public static void init(File file) {
 		// If the "config"-Variable is not yet initialized...
-		if (config == null)
-		{
+		if (config == null){
 			config = new Configuration(file);
 			loadConfig();
 			if (debugLogging)
@@ -199,16 +196,15 @@ public class Config
 	 * Load PvPUtils config <br>
 	 * Initialize config-related variables
 	 */
-	private static void loadConfig()
-	{
+	private static void loadConfig() {
 		config.load();
 
 		/* ————————————————————————————————————————————————————— */
-		
+
 		// Modules
 		// Variable definitions
 		config.setCategoryComment(CAT_MODULES_KEY, CAT_MODULES_COMMENT);
-		
+
 		cmdlogEnabled = config.get(CAT_MODULES_KEY, CMDLOG_ENABLED_KEY, CMDLOG_ENABLED_DEFAULT, CMDLOG_ENABLED_COMMENT).getBoolean();
 		macroDisable = config.get(CAT_MODULES_KEY, MACRO_DISABLE_KEY, MACRO_DISABLE_DEFAULT, MACRO_DISABLE_COMMENT).getBoolean();
 		xpLockEnabled = config.get(CAT_MODULES_KEY, XPLOCK_DISABLE_KEY, XPLOCK_DISABLE_DEFAULT, XPLOCK_DISABLE_COMMENT).getBoolean();
@@ -220,10 +216,9 @@ public class Config
 		// Command Log
 		// Variable definition & error handling
 		config.setCategoryComment(CAT_COMMAND_LOG_KEY, CAT_COMMAND_LOG_COMMENT);
-		
+
 		cmdlogWhere = config.get(CAT_COMMAND_LOG_KEY, CMDLOG_WHERE_KEY, CMDLOG_WHERE_DEFAULT, CMDLOG_WHERE_COMMENT).getInt();
-		if (cmdlogWhere < 1 || cmdlogWhere > 3)
-		{
+		if (cmdlogWhere < 1 || cmdlogWhere > 3){
 			Logger.warn("Config Error: \"" + CMDLOG_WHERE_KEY + "\" not in defined area! Read the Comment ; ) - Setting to default value!");
 			cmdlogWhere = CMDLOG_WHERE_DEFAULT;
 			config.get(CAT_COMMAND_LOG_KEY, CMDLOG_WHERE_KEY, CMDLOG_WHERE_DEFAULT, CMDLOG_WHERE_COMMENT).set(cmdlogWhere);
@@ -234,18 +229,16 @@ public class Config
 		// Macros
 		// Variable definition & error handling
 		config.setCategoryComment(CAT_MACROS_KEY, CAT_MACROS_COMMENT);
-		
+
 		macroTreshold = config.get(CAT_MACROS_KEY, MACRO_TRESHOLD_KEY, MACRO_TRESHOLD_DEFAULT, MACRO_TRESHOLD_COMMENT).getInt();
-		if (macroTreshold < 1)
-		{
+		if (macroTreshold < 1){
 			Logger.warn("Config Error: '" + MACRO_TRESHOLD_KEY + "' < 1! Setting to last usable number!");
 			macroTreshold = 1;
 			config.get(CAT_MACROS_KEY, MACRO_TRESHOLD_KEY, MACRO_TRESHOLD_DEFAULT, MACRO_TRESHOLD_COMMENT).set(macroTreshold);
 		}
 
 		macroKicker = config.get(CAT_MACROS_KEY, MACRO_KICKER_KEY, MACRO_KICKER_DEFAULT, MACRO_KICKER_COMMENT).getBoolean();
-		if (!macroDisable && macroKicker)
-		{
+		if (!macroDisable && macroKicker){
 			Logger.warn("Config Error: \"" + MACRO_KICKER_KEY + "\" enabled although \"" + MACRO_DISABLE_KEY + "\" is disabled... Setting \"" + MACRO_KICKER_KEY
 					+ "\" to \"false\"");
 			macroKicker = false;
@@ -253,8 +246,7 @@ public class Config
 		}
 
 		macroKickerTreshold = config.get(CAT_MACROS_KEY, MACRO_KICKER_TRESHOLD_KEY, MACRO_KICKER_TRESHOLD_DEFAULT, MACRO_KICKER_TRESHOLD_COMMENT).getInt();
-		if (macroKickerTreshold < 1)
-		{
+		if (macroKickerTreshold < 1){
 			Logger.warn("Config Error: '" + MACRO_KICKER_TRESHOLD_KEY + "' < 1! Setting to last usable number!");
 			macroKickerTreshold = 1;
 			config.get(CAT_MACROS_KEY, MACRO_KICKER_TRESHOLD_KEY, MACRO_KICKER_TRESHOLD_DEFAULT, MACRO_KICKER_TRESHOLD_COMMENT).set(macroKickerTreshold);
@@ -274,28 +266,24 @@ public class Config
 		config.setCategoryComment(CAT_LIVES, CAT_LIVES_COMMENT);
 
 		int baseStartlives = config.get(CAT_LIVES, LIVES_KEY, LIVES_DEFAULT, LIVES_COMMENT).getInt();
-		if (baseStartlives < 1)
-		{
+		if (baseStartlives < 1){
 			Logger.warn("Config Error: '" + LIVES_KEY + "' < 1! Settting to last usable number!");
 			baseStartlives = 1;
 			config.get(CAT_LIVES, LIVES_KEY, LIVES_DEFAULT, LIVES_COMMENT).set(baseStartlives);
 		}
 
 		int baseMaxlives = config.get(CAT_LIVES, MAXLIVES_KEY, MAXLIVES_DEFAULT, MAXLIVES_COMMENT).getInt();
-		if (baseMaxlives < 1)
-		{
+		if (baseMaxlives < 1){
 			Logger.warn("Config Error: '" + MAXLIVES_KEY + "' < 1! Setting to last usable number!");
 			baseMaxlives = 1;
 			config.get(CAT_LIVES, MAXLIVES_KEY, MAXLIVES_DEFAULT, MAXLIVES_COMMENT).set(baseMaxlives);
 		}
-		else if (baseMaxlives > 255)
-		{
+		else if (baseMaxlives > 255){
 			Logger.warn("Config Error: '" + MAXLIVES_KEY + "' > 255! Setting to last usable number!");
 			baseMaxlives = 255;
 			config.get(CAT_LIVES, MAXLIVES_KEY, MAXLIVES_DEFAULT, MAXLIVES_COMMENT).set(baseMaxlives);
 		}
-		if (baseMaxlives < baseStartlives)
-		{
+		if (baseMaxlives < baseStartlives){
 			Logger.warn("Config Error: '" + MAXLIVES_KEY + "' < '" + LIVES_KEY + "'! Setting '" + MAXLIVES_KEY + "' equal to '" + LIVES_KEY + "'!");
 			baseMaxlives = baseStartlives;
 			config.get(CAT_LIVES, MAXLIVES_KEY, MAXLIVES_DEFAULT, MAXLIVES_COMMENT).set(baseMaxlives);
@@ -304,8 +292,7 @@ public class Config
 		maxLives = (byte) baseMaxlives;
 
 		livesTakenBy = config.get(CAT_LIVES, LIVES_TAKEN_KEY, LIVES_TAKEN_DEFAULT, LIVES_TAKEN_COMMENT).getInt();
-		if (livesTakenBy < 1 || livesTakenBy > 3)
-		{
+		if (livesTakenBy < 1 || livesTakenBy > 3){
 			Logger.warn("Config Error: '" + LIVES_TAKEN_KEY + "' not in defined area! Read the Comment ; ) Setting to default value!");
 			livesTakenBy = LIVES_TAKEN_DEFAULT;
 			config.get(CAT_LIVES, LIVES_TAKEN_KEY, LIVES_TAKEN_DEFAULT, LIVES_TAKEN_COMMENT).set(livesTakenBy);
@@ -315,8 +302,7 @@ public class Config
 		scoreboardEnabled = config.get(CAT_LIVES, SCOREBOARD_ENABLED_KEY, SCOREBOARD_ENABLED_DEFAULT, SCOREBOARD_ENABLED_COMMENT).getBoolean();
 
 		scoreboardType = config.get(CAT_LIVES, SCOREBOARD_TYPE_KEY, SCOREBOARD_TYPE_DEFAULT, SCOREBOARD_TYPE_COMMENT).getInt();
-		if (scoreboardType < 1 || scoreboardType > 3)
-		{
+		if (scoreboardType < 1 || scoreboardType > 3){
 			Logger.warn("Config Error: '" + SCOREBOARD_TYPE_KEY + "' not in defined area! Read the Comment ; ) Setting to default value!");
 			scoreboardType = SCOREBOARD_TYPE_DEFAULT;
 			config.get(CAT_LIVES, SCOREBOARD_TYPE_KEY, SCOREBOARD_TYPE_DEFAULT, SCOREBOARD_TYPE_COMMENT).set(scoreboardType);
@@ -330,38 +316,33 @@ public class Config
 		config.setCategoryComment(CAT_TIME, CAT_TIME_COMMENT);
 
 		addedTime = config.get(CAT_TIME, ADD_TIME_KEY, ADD_TIME_DEFAULT, ADD_TIME_COMMENT).getInt() * 60;
-		if (addedTime < 0)
-		{
+		if (addedTime < 0){
 			Logger.warn("Config Error: '" + ADD_TIME_KEY + "' < 0! Setting to last usable number!");
 			addedTime = 0;
 			config.get(CAT_TIME, ADD_TIME_KEY, ADD_TIME_DEFAULT, ADD_TIME_COMMENT).set(addedTime);
 		}
 
 		startTime = config.get(CAT_TIME, START_TIME_KEY, START_TIME_DEFAULT, START_TIME_COMMENT).getInt() * 60;
-		if (startTime < 1)
-		{
+		if (startTime < 1){
 			Logger.warn("Config Error: '" + START_TIME_KEY + "' < 1! Setting to last usable number!");
 			startTime = 1;
 			config.get(CAT_TIME, START_TIME_KEY, START_TIME_DEFAULT, START_TIME_COMMENT).set(startTime);
 		}
 
 		maxTime = config.get(CAT_TIME, MAXTIME_KEY, MAXTIME_DEFAULT, MAXTIME_COMMENT).getInt() * 60;
-		if (maxTime < 1)
-		{
+		if (maxTime < 1){
 			Logger.warn("Config Error: '" + MAXTIME_KEY + "' < 1! Setting to last usable number!");
 			maxTime = 1;
 			config.get(CAT_TIME, MAXTIME_KEY, MAXTIME_DEFAULT, MAXTIME_COMMENT).set(maxTime);
 		}
 
-		if (maxTime < addedTime)
-		{
+		if (maxTime < addedTime){
 			Logger.warn("Config Error: '" + MAXTIME_KEY + "' < '" + ADD_TIME_KEY + "'! Setting '" + MAXTIME_KEY + "' equal to '" + ADD_TIME_KEY + "'!");
 			maxTime = addedTime;
 			config.get(CAT_TIME, MAXTIME_KEY, MAXTIME_DEFAULT, MAXTIME_COMMENT).set(maxTime);
 		}
 
-		if (maxTime < startTime)
-		{
+		if (maxTime < startTime){
 			Logger.warn("Config Error: '" + MAXTIME_KEY + "' < '" + START_TIME_KEY + "'! Setting '" + MAXTIME_KEY + "' equal to '" + START_TIME_KEY + "'!");
 			maxTime = startTime;
 			config.get(CAT_TIME, MAXTIME_KEY, MAXTIME_DEFAULT, MAXTIME_COMMENT).set(maxTime);
@@ -376,11 +357,11 @@ public class Config
 		// Debug
 		// Variable definition
 		config.setCategoryComment(CAT_DEBUG_KEY, CAT_DEBUG_COMMENT);
-		
+
 		debugLogging = config.get(CAT_DEBUG_KEY, DEBUG_LOGGING_KEY, DEBUG_LOGGING_DEFAULT).getBoolean();
 		excessiveLogging = config.get(CAT_DEBUG_KEY, EXCESSIVE_LOGGING_KEY, EXCESSIVE_LOGGING_DEFAULT, EXCESSIVE_LOGGING_COMMENT).getBoolean();
-		constantExcessiveLogging = config.get(CAT_DEBUG_KEY, CONSTANT_EXCESSIVE_LOGGING_KEY, CONSTANT_EXCESSIVE_LOGGING_DEFAULT, CONSTANT_EXCESSIVE_LOGGING_COMMENT)
-				.getBoolean();
+		constantExcessiveLogging = config
+				.get(CAT_DEBUG_KEY, CONSTANT_EXCESSIVE_LOGGING_KEY, CONSTANT_EXCESSIVE_LOGGING_DEFAULT, CONSTANT_EXCESSIVE_LOGGING_COMMENT).getBoolean();
 
 		/* ————————————————————————————————————————————————————— */
 

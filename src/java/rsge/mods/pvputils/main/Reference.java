@@ -8,8 +8,7 @@ import java.io.File;
  * 
  * @author Rsge
  */
-public class Reference
-{
+public class Reference {
 	/** Mod ID */
 	public static final String MODID = "pvputils";
 	/** Mod name */

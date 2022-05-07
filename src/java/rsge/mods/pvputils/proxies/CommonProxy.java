@@ -5,15 +5,13 @@ package rsge.mods.pvputils.proxies;
  * 
  * @author Rsge
  */
-public class CommonProxy
-{
+public class CommonProxy {
 	/**
 	 * If proxy is clientside
 	 * 
 	 * @return false
 	 */
-	public boolean isClient()
-	{
+	public boolean isClient() {
 		return false;
 	}
 
@@ -22,8 +20,7 @@ public class CommonProxy
 	 * 
 	 * @return true
 	 */
-	public boolean isServer()
-	{
+	public boolean isServer() {
 		return true;
 	}
 }

@@ -10,8 +10,7 @@ import net.minecraft.command.ICommandSender;
  * 
  * @author Rsge
  */
-public interface ISubCmd
-{
+public interface ISubCmd {
 	/**
 	 * @return Permission level of command as integer
 	 */

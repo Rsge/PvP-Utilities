@@ -21,16 +21,14 @@ import net.minecraft.command.ICommandSender;
  * 
  * @author Rsge
  */
-public class Logger
-{
+public class Logger {
 	/**
 	 * Basic logging command
 	 * 
 	 * @param logLevel Level of logging
 	 * @param object   to be logged
 	 */
-	private static void log(Level logLevel, Object object)
-	{
+	private static void log(Level logLevel, Object object) {
 		FMLLog.log(Reference.NAME, logLevel, String.valueOf(object));
 	}
 
@@ -39,8 +37,7 @@ public class Logger
 	 * 
 	 * @param object to be logged
 	 */
-	public static void off(Object object)
-	{
+	public static void off(Object object) {
 		log(Level.OFF, object);
 	}
 
@@ -49,8 +46,7 @@ public class Logger
 	 * 
 	 * @param object to be logged
 	 */
-	public static void fatal(Object object)
-	{
+	public static void fatal(Object object) {
 		log(Level.FATAL, object);
 	}
 
@@ -59,8 +55,7 @@ public class Logger
 	 * 
 	 * @param object to be logged
 	 */
-	public static void error(Object object)
-	{
+	public static void error(Object object) {
 		log(Level.ERROR, object);
 	}
 
@@ -69,8 +64,7 @@ public class Logger
 	 * 
 	 * @param object to be logged
 	 */
-	public static void warn(Object object)
-	{
+	public static void warn(Object object) {
 		log(Level.WARN, object);
 	}
 
@@ -79,8 +73,7 @@ public class Logger
 	 * 
 	 * @param object to be logged
 	 */
-	public static void info(Object object)
-	{
+	public static void info(Object object) {
 		log(Level.INFO, object);
 	}
 
@@ -89,8 +82,7 @@ public class Logger
 	 * 
 	 * @param object to be logged
 	 */
-	public static void debug(Object object)
-	{
+	public static void debug(Object object) {
 		log(Level.DEBUG, object);
 	}
 
@@ -99,8 +91,7 @@ public class Logger
 	 * 
 	 * @param object to be logged
 	 */
-	public static void trace(Object object)
-	{
+	public static void trace(Object object) {
 		log(Level.TRACE, object);
 	}
 
@@ -109,8 +100,7 @@ public class Logger
 	 * 
 	 * @param object to be logged
 	 */
-	public static void all(Object object)
-	{
+	public static void all(Object object) {
 		log(Level.ALL, object);
 	}
 
@@ -120,18 +110,15 @@ public class Logger
 	 * @param cmdsender Sender of command
 	 * @param s         String to log
 	 */
-	public static void logCmd(ICommandSender cmdsender, String s)
-	{
-		try
-		{
+	public static void logCmd(ICommandSender cmdsender, String s) {
+		try{
 			DateTimeFormatter dtf = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(Locale.UK);
 			String l = "[" + LocalDateTime.now().format(dtf) + "] [" + cmdsender.getCommandSenderName() + "] [" + s + "]";
 			List<String> log = Arrays.asList(l);
 
 			Files.write(Paths.get(Reference.loggedCmds.getAbsolutePath()), log, StandardOpenOption.APPEND);
 		}
-		catch (Exception ex)
-		{
+		catch (Exception ex){
 			Logger.error("ERROR while trying to log a PvP-Utilities-command");
 		}
 	}
