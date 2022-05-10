@@ -1,5 +1,5 @@
 # PvP Utilities
-This is a server side mod, adding lots of useful utilities for Minecraft PvP, be it modded or Vanilla.\
+This is a server side mod, adding lots of useful utilities for Minecraft PvP, be it modded or Vanilla-style.\
 It was originally made for a private PvP project using FTB Trident and it's my first mod.
 
 The mod can be downloaded on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/pvp-utilities).
